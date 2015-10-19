@@ -1,0 +1,270 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 10.1' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      9593,        261]
+NotebookOptionsPosition[      8858,        233]
+NotebookOutlinePosition[      9193,        248]
+CellTagsIndexPosition[      9150,        245]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"Integrate", "[", 
+    RowBox[{
+     RowBox[{"Integrate", "[", 
+      RowBox[{
+       RowBox[{"I0", " ", 
+        RowBox[{"Exp", "[", 
+         FractionBox[
+          RowBox[{"-", 
+           RowBox[{"Sqrt", "[", 
+            RowBox[{
+             SuperscriptBox["x", "2"], "+", 
+             SuperscriptBox["y", "2"]}], "]"}]}], "r0"], "]"}]}], ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"y", ",", 
+         RowBox[{"-", "\[Infinity]"}], ",", "\[Infinity]"}], "}"}]}], "]"}], 
+     ",", 
+     RowBox[{"{", 
+      RowBox[{"x", ",", 
+       RowBox[{"-", "\[Infinity]"}], ",", " ", "\[Infinity]"}], "}"}]}], 
+    "]"}], "  ", "//", " ", "N"}], "\[IndentingNewLine]"}]], "Input",
+ CellChangeTimes->{{3.6527210201455917`*^9, 3.6527210786736603`*^9}, {
+  3.6527211558465977`*^9, 3.6527211981954403`*^9}, {3.6527213085206747`*^9, 
+  3.652721348129984*^9}, {3.652721481787526*^9, 3.652721483562571*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"NIntegrate", "::", "inumr"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"The integrand \[NoBreak]\\!\\(\\(\[Integral]\\_\\(-\
+\[Infinity]\\)\\%\[Infinity]\\) \
+\\(\\(\\(\\(\[ExponentialE]\\^\\(-\\(\\(\\@\\(x\\^2 + \
+y\\^2\\)\\/r0\\)\\)\\)\\\\ I0\\)\\) \\(\\(\[DifferentialD] y\\)\\)\\)\\)\\)\
+\[NoBreak] has evaluated to non-numerical values for all sampling points in \
+the region with boundaries \[NoBreak]\\!\\({\\({\[Infinity], 0.`}\\)}\\)\
+\[NoBreak]. \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
+ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
+ButtonData:>\\\"paclet:ref/message/NIntegrate/inumr\\\", ButtonNote -> \
+\\\"NIntegrate::inumr\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.652721543822856*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"NIntegrate", "::", "inumr"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"The integrand \[NoBreak]\\!\\(\\(\[Integral]\\_\\(-\
+\[Infinity]\\)\\%\[Infinity]\\) \
+\\(\\(\\(\\(\[ExponentialE]\\^\\(-\\(\\(\\@\\(x\\^2 + \
+y\\^2\\)\\/r0\\)\\)\\)\\\\ I0\\)\\) \\(\\(\[DifferentialD] y\\)\\)\\)\\)\\)\
+\[NoBreak] has evaluated to non-numerical values for all sampling points in \
+the region with boundaries \[NoBreak]\\!\\({\\({\[Infinity], 0.`}\\)}\\)\
+\[NoBreak]. \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
+ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
+ButtonData:>\\\"paclet:ref/message/NIntegrate/inumr\\\", ButtonNote -> \
+\\\"NIntegrate::inumr\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.652721582947802*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"NIntegrate", "::", "inumr"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"The integrand \[NoBreak]\\!\\(\\(\[Integral]\\_\\(-\
+\[Infinity]\\)\\%\[Infinity]\\) \
+\\(\\(\\(\\(\[ExponentialE]\\^\\(-\\(\\(\\@\\(x\\^2 + \
+y\\^2\\)\\/r0\\)\\)\\)\\\\ I0\\)\\) \\(\\(\[DifferentialD] y\\)\\)\\)\\)\\)\
+\[NoBreak] has evaluated to non-numerical values for all sampling points in \
+the region with boundaries \[NoBreak]\\!\\({\\({\[Infinity], 0.`}\\)}\\)\
+\[NoBreak]. \\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", \
+ButtonStyle->\\\"Link\\\", ButtonFrame->None, \
+ButtonData:>\\\"paclet:ref/message/NIntegrate/inumr\\\", ButtonNote -> \
+\\\"NIntegrate::inumr\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.652721622070644*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  StyleBox[
+   RowBox[{"General", "::", "stop"}], "MessageName"], 
+  RowBox[{
+  ":", " "}], "\<\"Further output of \
+\[NoBreak]\\!\\(\\*StyleBox[\\(NIntegrate :: inumr\\), \
+\\\"MessageName\\\"]\\)\[NoBreak] will be suppressed during this calculation. \
+\\!\\(\\*ButtonBox[\\\"\[RightSkeleton]\\\", ButtonStyle->\\\"Link\\\", \
+ButtonFrame->None, ButtonData:>\\\"paclet:ref/message/General/stop\\\", \
+ButtonNote -> \\\"General::stop\\\"]\\)\"\>"}]], "Message", "MSG",
+ CellChangeTimes->{3.652721622114965*^9}],
+
+Cell[BoxData[
+ RowBox[{"NIntegrate", "[", 
+  RowBox[{
+   RowBox[{
+    SubsuperscriptBox["\[Integral]", 
+     RowBox[{"-", "\[Infinity]"}], "\[Infinity]"], 
+    RowBox[{
+     RowBox[{
+      SuperscriptBox["\[ExponentialE]", 
+       RowBox[{"-", 
+        FractionBox[
+         SqrtBox[
+          RowBox[{
+           SuperscriptBox["x", "2"], "+", 
+           SuperscriptBox["y", "2"]}]], "r0"]}]], " ", "I0"}], 
+     RowBox[{"\[DifferentialD]", "y"}]}]}], ",", 
+   RowBox[{"{", 
+    RowBox[{"x", ",", 
+     RowBox[{"-", "\[Infinity]"}], ",", "\[Infinity]"}], "}"}]}], 
+  "]"}]], "Output",
+ CellChangeTimes->{
+  3.652721186167321*^9, 3.652721283073246*^9, {3.6527213156797037`*^9, 
+   3.652721332622795*^9}, 3.652721367456019*^9, 3.652721622118762*^9}]
+}, {2}]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"Integrate", "[", 
+     RowBox[{
+      RowBox[{"I0", " ", "2", " ", "\[Pi]", " ", "r", " ", 
+       RowBox[{"Exp", "[", 
+        FractionBox[
+         RowBox[{"-", "r"}], "r0"], "]"}]}], ",", " ", 
+      RowBox[{"{", 
+       RowBox[{"r", ",", " ", "0", ",", " ", "\[Infinity]"}], "}"}]}], "]"}], 
+    "  ", "\[Equal]", " ", "Flux"}], " ", "\[IndentingNewLine]", 
+   RowBox[{"Solve", "[", 
+    RowBox[{"%", ",", " ", "I0"}], "]"}], "\[IndentingNewLine]", 
+   RowBox[{"%", " ", "/.", " ", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"Flux", "\[Rule]", "120"}], ",", " ", 
+      RowBox[{"r0", " ", "\[Rule]", " ", "5"}]}], "}"}]}], " ", 
+   "\[IndentingNewLine]", 
+   RowBox[{"%", " ", "//", " ", "N"}]}]}]], "Input",
+ CellChangeTimes->{{3.652721555476343*^9, 3.652721623905582*^9}, {
+   3.6527234544841022`*^9, 3.652723473004475*^9}, {3.6527235048378077`*^9, 
+   3.652723528648869*^9}, {3.652783928829378*^9, 3.6527840126509666`*^9}, {
+   3.652784049095674*^9, 3.652784051544676*^9}, {3.652784583441486*^9, 
+   3.652784583917214*^9}, {3.652784615314649*^9, 3.652784631093884*^9}, 
+   3.6527852304688387`*^9, {3.6529911238310633`*^9, 3.652991123985952*^9}, {
+   3.653856517242301*^9, 3.653856536158078*^9}, {3.65412610844459*^9, 
+   3.6541261088131523`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"ConditionalExpression", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"2", " ", "I0", " ", "\[Pi]", " ", 
+     SuperscriptBox["r0", "2"]}], "\[Equal]", "Flux"}], ",", 
+   RowBox[{
+    RowBox[{"Re", "[", "r0", "]"}], ">", "0"}]}], "]"}]], "Output",
+ CellChangeTimes->{
+  3.652721626742951*^9, {3.652723465424279*^9, 3.652723474542705*^9}, 
+   3.6527235304042788`*^9, {3.652783940012331*^9, 3.65278401422119*^9}, 
+   3.652784080872938*^9, 3.6527845862350397`*^9, 3.652784633021056*^9, 
+   3.652785232431773*^9, 3.65299112653718*^9, 3.653856539138867*^9, 
+   3.654126111148687*^9}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"{", 
+   RowBox[{"I0", "\[Rule]", 
+    RowBox[{"ConditionalExpression", "[", 
+     RowBox[{
+      FractionBox["Flux", 
+       RowBox[{"2", " ", "\[Pi]", " ", 
+        SuperscriptBox["r0", "2"]}]], ",", 
+      RowBox[{
+       RowBox[{"Re", "[", "r0", "]"}], ">", "0"}]}], "]"}]}], "}"}], 
+  "}"}]], "Output",
+ CellChangeTimes->{
+  3.652721626742951*^9, {3.652723465424279*^9, 3.652723474542705*^9}, 
+   3.6527235304042788`*^9, {3.652783940012331*^9, 3.65278401422119*^9}, 
+   3.652784080872938*^9, 3.6527845862350397`*^9, 3.652784633021056*^9, 
+   3.652785232431773*^9, 3.65299112653718*^9, 3.653856539138867*^9, 
+   3.654126111159976*^9}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"{", 
+   RowBox[{"I0", "\[Rule]", 
+    FractionBox["12", 
+     RowBox[{"5", " ", "\[Pi]"}]]}], "}"}], "}"}]], "Output",
+ CellChangeTimes->{
+  3.652721626742951*^9, {3.652723465424279*^9, 3.652723474542705*^9}, 
+   3.6527235304042788`*^9, {3.652783940012331*^9, 3.65278401422119*^9}, 
+   3.652784080872938*^9, 3.6527845862350397`*^9, 3.652784633021056*^9, 
+   3.652785232431773*^9, 3.65299112653718*^9, 3.653856539138867*^9, 
+   3.654126111161941*^9}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"{", 
+   RowBox[{"I0", "\[Rule]", "0.7639437268410977`"}], "}"}], "}"}]], "Output",
+ CellChangeTimes->{
+  3.652721626742951*^9, {3.652723465424279*^9, 3.652723474542705*^9}, 
+   3.6527235304042788`*^9, {3.652783940012331*^9, 3.65278401422119*^9}, 
+   3.652784080872938*^9, 3.6527845862350397`*^9, 3.652784633021056*^9, 
+   3.652785232431773*^9, 3.65299112653718*^9, 3.653856539138867*^9, 
+   3.654126111163651*^9}]
+}, Open  ]],
+
+Cell[BoxData["\[IndentingNewLine]"], "Input",
+ CellChangeTimes->{3.652784089542234*^9}]
+},
+WindowSize->{808, 753},
+WindowMargins->{{Automatic, 68}, {18, Automatic}},
+FrontEndVersion->"10.1 for Linux x86 (64-bit) (March 23, 2015)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 947, 25, 87, "Input"],
+Cell[1530, 49, 775, 15, 111, "Message"],
+Cell[2308, 66, 775, 15, 111, "Message"],
+Cell[3086, 83, 775, 15, 111, "Message"],
+Cell[3864, 100, 534, 11, 23, "Message"],
+Cell[4401, 113, 749, 22, 61, "Output"]
+}, {2}]],
+Cell[CellGroupData[{
+Cell[5184, 140, 1340, 29, 144, "Input"],
+Cell[6527, 171, 597, 13, 37, "Output"],
+Cell[7127, 186, 677, 17, 52, "Output"],
+Cell[7807, 205, 489, 11, 50, "Output"],
+Cell[8299, 218, 453, 9, 89, "Output"]
+}, Open  ]],
+Cell[8767, 230, 87, 1, 55, "Input"]
+}
+]
+*)
+
+(* End of internal cache information *)
