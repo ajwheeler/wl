@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[      9593,        261]
-NotebookOptionsPosition[      8858,        233]
-NotebookOutlinePosition[      9193,        248]
-CellTagsIndexPosition[      9150,        245]
+NotebookDataLength[     12505,        349]
+NotebookOptionsPosition[     11503,        312]
+NotebookOutlinePosition[     11840,        327]
+CellTagsIndexPosition[     11797,        324]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -229,10 +229,89 @@ Cell[BoxData[
 }, Open  ]],
 
 Cell[BoxData["\[IndentingNewLine]"], "Input",
- CellChangeTimes->{3.652784089542234*^9}]
+ CellChangeTimes->{3.652784089542234*^9}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Integrate", "[", 
+  RowBox[{
+   RowBox[{"I0", " ", "2", " ", "\[Pi]", " ", "r", " ", 
+    RowBox[{"Exp", "[", 
+     RowBox[{"-", 
+      SuperscriptBox[
+       RowBox[{"(", 
+        FractionBox["r", "r0"], ")"}], 
+       RowBox[{"1", "/", "4"}]]}], "]"}]}], ",", " ", 
+   RowBox[{"{", 
+    RowBox[{"r", ",", "0", ",", "\[Infinity]"}], "}"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.654711037655403*^9, 3.654711038137001*^9}, {
+  3.654711211013904*^9, 3.654711213177663*^9}, {3.654711245091815*^9, 
+  3.654711291376265*^9}, {3.654711558234796*^9, 3.654711558450877*^9}, {
+  3.6547116199670353`*^9, 3.654711620035706*^9}}],
+
+Cell[BoxData[
+ RowBox[{"ConditionalExpression", "[", 
+  RowBox[{
+   RowBox[{"40320", " ", "I0", " ", "\[Pi]", " ", 
+    SuperscriptBox["r0", "2"]}], ",", 
+   RowBox[{
+    RowBox[{"Re", "[", 
+     SuperscriptBox[
+      RowBox[{"(", 
+       FractionBox["1", "r0"], ")"}], 
+      RowBox[{"1", "/", "4"}]], "]"}], ">", "0"}]}], "]"}]], "Output",
+ CellChangeTimes->{3.654711297758816*^9, 3.65471157228651*^9, 
+  3.654711624064168*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"Integrate", "[", 
+  RowBox[{
+   RowBox[{"I0", " ", "2", " ", "\[Pi]", " ", "r", " ", 
+    RowBox[{"Exp", "[", 
+     RowBox[{"-", 
+      SuperscriptBox[
+       RowBox[{"(", 
+        FractionBox["r", "r0"], ")"}], 
+       RowBox[{"1", "/", "n"}]]}], "]"}]}], ",", " ", 
+   RowBox[{"{", 
+    RowBox[{"r", ",", "0", ",", "\[Infinity]"}], "}"}], ",", " ", 
+   RowBox[{"Assumptions", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"n", " ", "\[Element]", " ", "Integers"}], ",", " ", 
+      RowBox[{"r0", " ", "\[Element]", " ", "Reals"}], ",", " ", 
+      RowBox[{"r0", " ", ">", " ", "0"}], ",", " ", 
+      RowBox[{"n", " ", ">", " ", "0"}]}], "}"}]}]}], 
+  "]"}], "\[IndentingNewLine]", 
+ RowBox[{"%", " ", "/.", " ", 
+  RowBox[{"n", " ", "\[Rule]", " ", "4"}]}]}], "Input",
+ CellChangeTimes->{{3.6548664686452103`*^9, 3.654866469013155*^9}, {
+  3.65486652070401*^9, 3.654866585038892*^9}, {3.654866897471765*^9, 
+  3.654866903884441*^9}}],
+
+Cell[BoxData[
+ RowBox[{"2", " ", "I0", " ", "n", " ", "\[Pi]", " ", 
+  SuperscriptBox["r0", "2"], " ", 
+  RowBox[{"Gamma", "[", 
+   RowBox[{"2", " ", "n"}], "]"}]}]], "Output",
+ CellChangeTimes->{
+  3.654866483408514*^9, {3.654866576155567*^9, 3.654866586741267*^9}, 
+   3.6548669050449247`*^9}],
+
+Cell[BoxData[
+ RowBox[{"40320", " ", "I0", " ", "\[Pi]", " ", 
+  SuperscriptBox["r0", "2"]}]], "Output",
+ CellChangeTimes->{
+  3.654866483408514*^9, {3.654866576155567*^9, 3.654866586741267*^9}, 
+   3.654866905046029*^9}]
+}, Open  ]]
 },
-WindowSize->{808, 753},
-WindowMargins->{{Automatic, 68}, {18, Automatic}},
+WindowSize->{754, 751},
+WindowMargins->{{798, Automatic}, {Automatic, 193}},
 FrontEndVersion->"10.1 for Linux x86 (64-bit) (March 23, 2015)",
 StyleDefinitions->"Default.nb"
 ]
@@ -260,9 +339,18 @@ Cell[5184, 140, 1340, 29, 144, "Input"],
 Cell[6527, 171, 597, 13, 37, "Output"],
 Cell[7127, 186, 677, 17, 52, "Output"],
 Cell[7807, 205, 489, 11, 50, "Output"],
-Cell[8299, 218, 453, 9, 89, "Output"]
+Cell[8299, 218, 453, 9, 32, "Output"]
 }, Open  ]],
-Cell[8767, 230, 87, 1, 55, "Input"]
+Cell[8767, 230, 87, 1, 55, "Input"],
+Cell[CellGroupData[{
+Cell[8879, 235, 644, 15, 54, "Input"],
+Cell[9526, 252, 429, 12, 49, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[9992, 269, 973, 24, 109, "Input"],
+Cell[10968, 295, 295, 7, 34, "Output"],
+Cell[11266, 304, 221, 5, 67, "Output"]
+}, Open  ]]
 }
 ]
 *)
