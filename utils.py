@@ -26,7 +26,7 @@ def noisy_egg(rd, Id, rb, Ib, disk_g=0, scale=None, sigma=0):
     bulge = galsim.DeVaucouleurs(half_light_radius=rb, flux=bulge_flux)
 
     #todo base on half light radius
-    psf = galsim.Gaussian(sigma=min([rd, rb])*2)
+    psf = galsim.Gaussian(sigma=min([rd, rb])/5.0)
 
     egg = galsim.Convolution([(disk+bulge), psf])
 
