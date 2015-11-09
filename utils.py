@@ -29,11 +29,11 @@ def noisy_egg(rd, Id, rb, Ib, disk_g=0, scale=None, sigma=0):
     psf = galsim.Gaussian(sigma=min([rd, rb])/5.0)
 
     egg = galsim.Convolution([(disk+bulge), psf])
-
-    image = egg.drawImage(scale=scale)
-    #image = disk.drawImage(scale=scale)
+    #image = egg.drawImage(scale=scale)
+    image = disk.drawImage(scale=scale)
     image.addNoise(galsim.GaussianNoise(sigma=sigma, rng=galsim.BaseDeviate(int(time.time()))))
-    return image.array
+    
+    return (image.array, image.center())
     
 
 def analytic_I0_variance(data, center, r0):
