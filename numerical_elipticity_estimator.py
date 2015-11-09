@@ -92,17 +92,3 @@ if __name__ == '__main__':
     
     params = EggParams()
     estimate(egg, params, to_estimate=['g1d', 'g2d', 'g1g', 'g2g'])
-
-
-    params = EggParams()
-    egg = noisy_egg(params)
-
-    dmdgamma = dmd(egg, params, 'g1g')
-    utils.view_image(dmdgamma)
-
-    dmdIA = dmd(egg, params, 'g1d')
-    utils.view_image(dmdIA)
-
-    
-    dmdgammaP = dmdgamma - (np.sum(dmdgamma * dmdIA)/np.sum(dmdIA**2))*dmdIA
-    utils.view_image(dmdgammaP)
