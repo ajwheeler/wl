@@ -1,1 +1,1 @@
-rm *~ *.pyc
+rm *~ *.pyc 

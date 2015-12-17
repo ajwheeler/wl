@@ -3,11 +3,15 @@ import time
 import numpy as np
 import matplotlib.pyplot as  plt
 
-def noisy_exp(scale_radius, flux, scale=1, sigma=1):
+def noisy_exp(scale_radius, flux, scale=1, sigma=1, SNR=None):
     """return a exponential gal image object with Gaussian noise"""
     perfect_gal = galsim.Exponential(scale_radius=scale_radius, flux=flux)
     image = perfect_gal.drawImage(scale=scale)
-    image.addNoise(galsim.GaussianNoise(sigma=sigma, rng=galsim.BaseDeviate(int(time.time()))))
+    if SNR == None:
+        image.addNoise(galsim.GaussianNoise(sigma=sigma, rng=galsim.BaseDeviate(int(time.time()))))
+    else:
+        image.addNoiseSNR(galsim.GaussianNoise(rng=galsim.BaseDeviate(int(time.time()))), SNR, preserve_flux=False)
+
     return image
 
 def noisy_egg(rd, Id, rb, Ib, disk_g=0, scale=None, sigma=0):

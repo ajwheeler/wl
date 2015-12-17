@@ -5,12 +5,17 @@ import utils
 params = nee.EggParams()
 egg = nee.noisy_egg(params)
 
-dmdgamma = nee.dmd(egg, params, 'g1g')
+dmdgamma = nee.dmd(egg, params, 'g1s')
+
+print(np.sum(dmdgamma**2))
 utils.view_image(dmdgamma)
 
 dmdIA = nee.dmd(egg, params, 'g1d')
 utils.view_image(dmdIA)
 
+dmdgammaP = dmdgamma - (np.sum(dmdgamma * dmdIA)/\
+                        np.sqrt(np.sum(dmdIA**2)* np.sum(dmdgamma**2)))*dmdIA
 
-dmdgammaP = dmdgamma - (np.sum(dmdgamma * dmdIA)/np.sum(dmdIA**2))*dmdIA
+
 utils.view_image(dmdgammaP)
+

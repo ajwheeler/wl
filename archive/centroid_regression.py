@@ -4,6 +4,7 @@ import os
 import itertools
 import matplotlib.pyplot as plt
 import time 
+import utils
 
 R0FLUX = 0.632121
 
@@ -143,19 +144,16 @@ def noisy_exp(scale_radius, flux, scale=1):
     return image
 
 if __name__ == '__main__':
-
-    I0s = []
-    for i in xrange(100):
-        data = noisy_exp(5,100).array
-        A,r0,I0 = regress(data, iterations=30)
-        print("estimated I0: " + str(I0))
-        I0s.append(I0)
-
-    print("I0s: " + str(I0s))
-    print("average: " + str(sum(I0s)/100.0))
     
+    psf = galsim.Gaussian(sigma=2)
 
-    data = noisy_exp(5,100).array
+    perfect_gal = galsim.Exponential(scale_radius=5, flux=100)
+    perfect_gal = galsim.Convolution([perfect_gal, psf])
+    image = perfect_gal.drawImage(scale=1)
+    utils.view_image(image.array)
+    image.addNoise(galsim.GaussianNoise(sigma=.1, rng=galsim.BaseDeviate(int(time.time()))))
+    utils.view_image(image.array)
+    data = image.array
     A,r0,I0 = regress(data, iterations=30)
     print("estimated I0: " + str(I0))
         

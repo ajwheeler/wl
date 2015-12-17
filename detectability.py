@@ -30,6 +30,14 @@ def find_galaxy(data, threshold):
 
     return(X,Y)
 
+def brightest_pixel(data):
+    p = data[0][0]
+    for i,row in enumerate(data):
+        for j,val in enumerate(row):
+            if val > p:
+                p = val
+    return p
+
 def convolve_with_model(image, r0):
     """return the image convoled with an exponential profile with scale radius r0"""
     rows = len(image)
@@ -60,49 +68,62 @@ def get_y_n():
 
 
 if __name__ == '__main__':
-    minFlux = 110
-    maxFlux = 125
-    fluxStep = 1
-    trialsPerStep = 100
-    threshold = .5
+    minSNR = 1
+    maxSNR = 20
+    SNRStep = 1
+    trialsPerStep = 10
+    threshold = .6
 
-    detectedPerFlux = {}
+    detectedPerSNR = {}
+    brightestPixels = {}
+    
 
     scale_radius = 5
-    sigma = .05
+    flux = 120
 
-    flux = minFlux
-    while flux <= maxFlux:
-        print("flux = " + str(flux))
-        detectedPerFlux[flux] = 0
+    snr = minSNR
+    while snr <= maxSNR:
+        print("snr = " + str(snr))
+        detectedPerSNR[snr] = 0
+        brightestPixels[snr] = 0
 
         for i in xrange(trialsPerStep):
             #print("iteration " + str(i))
-            image = noisy_exp(scale_radius, flux, sigma=sigma).array
+            image = noisy_exp(scale_radius, flux, SNR=snr).array
             smoothed_image = convolve_with_model(image,scale_radius)
 
             centroid = find_galaxy(smoothed_image, threshold)
             if centroid:
-                detectedPerFlux[flux] += 1
+                detectedPerSNR[snr] += 1
             
-            #print("view images?")
-            if False:#get_y_n():
-                plt.imshow(image, cmap=plt.get_cmap('gray'))
-                plt.show()
+            bp = brightest_pixel(smoothed_image)
+            print("brightest pixel: " + str(bp))
+            brightestPixels[snr] += bp
 
-                plt.imshow(smoothed_image, cmap=plt.get_cmap('gray'))
-                plt.show()
-                        
-        flux += fluxStep
+            # print("view images?")
+            # if get_y_n():
+            #    plt.imshow(image, cmap=plt.get_cmap('gray'))
+            #    plt.show()
+            
+            #    plt.imshow(smoothed_image, cmap=plt.get_cmap('gray'))
+            #    plt.show()
+        
 
-    image = noisy_exp(scale_radius, flux, sigma=sigma).array
-    variance = I0_estimator.analytic_variance(image, (42.5, 42.5), scale_radius, sigma)
+        brightestPixels[snr] /= float(trialsPerStep)
+        snr += SNRStep
 
-    fluxes = sorted(detectedPerFlux.keys())
-    detected = [detectedPerFlux[k]/float(trialsPerStep) for k in fluxes]
-    SNRs = [f/(np.sqrt(variance)*2*np.pi*(scale_radius**2)) for f in fluxes]
+    SNRs = sorted(detectedPerSNR.keys())
+    detected = [detectedPerSNR[k]/float(trialsPerStep) for k in SNRs]
+
     plt.plot(SNRs, detected)
     plt.xlabel("SNR")
     plt.ylabel("probability of detection")
     plt.title("Liklyhood of detection (threshold: I0 = %s)" % threshold)
     plt.show()
+
+
+    plt.plot(SNRs, [brightestPixels[k] for k in SNRs])
+    plt.xlabel("SNR")
+    plt.ylabel("avg brightest pixel")
+    plt.show()
+       
