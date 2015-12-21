@@ -86,34 +86,28 @@ print("model fisher information")
 print(fisher)
 #print("model covariance")
 #print(covariance)
-plot_elipse(params, covariance, labels, 'g1s', 'g1d')
+#plot_elipse(params, covariance, labels, 'g1s', 'g1d')
 
 
 def orientation_prior(g):
     p = 1/(4-np.pi) * np.sqrt(g)/(1+g)
-    print("p(%s) = %s" % (g,p))
-    #return p
-    return 1 if g > .3 else 0
+    #print("p(%s) = %s" % (g,p))
+    return p
+    #return 1 if g > .3 else 0
 
 accepted = []
 allPoints = []
-for _ in xrange(5):
+for _ in xrange(50000):
     point = np.random.multivariate_normal([params[l] for l in labels], covariance)
 
-    #print(zip(labels, point))
-
-    allPass = True
-    for g1, g2 in [('g1d', 'g2d'), ('g1b', 'g2b')]:
-        g1 = np.tanh(point[labels.index(g1)])
-        g2 = np.tanh(point[labels.index(g2)])
-        p = orientation_prior(np.sqrt(g1**2 + g2**2))
-        r = np.random.random()
-        #print(r, p)
-        if r > p:
-            allPass = False
-            break
-    
-    if allPass:
+    g1 = np.tanh(point[labels.index('g1d')])
+    g2 = np.tanh(point[labels.index('g2d')])
+    g = np.sqrt(g1**2 + g2**2)
+    #print("g1 = %s, g2 = %s, g = %s" % (g1,g2,g))
+    p = orientation_prior(g)
+    r = np.random.random()
+    #print("%s < %s ?" %(r, p))
+    if r < p:
         accepted.append(point)
     allPoints.append(point)
 
@@ -122,7 +116,7 @@ points_fisher = np.linalg.inv(points_cov)
 print("points fisher")
 print(points_fisher)
 
-print(str(len(accepted)) + " accepted")
+print(str(len(accepted)) + " points accepted")
 covariance_with_prior = np.cov(np.transpose(accepted))
 fisher_with_prior = np.linalg.inv(covariance_with_prior)
 print("model + prior fisher")
@@ -134,7 +128,7 @@ print(fisher_with_prior - fisher)
 print("true prior fisher")
 print(fisher_with_prior - points_fisher)
 
-plot_elipse(params, covariance_with_prior, labels, 'g1s', 'g1d')
+#plot_elipse(params, covariance_with_prior, labels, 'g1s', 'g1d')
 print()
 
 
