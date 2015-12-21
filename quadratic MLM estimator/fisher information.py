@@ -91,22 +91,22 @@ print(fisher)
 
 def orientation_prior(g):
     p = 1/(4-np.pi) * np.sqrt(g)/(1+g)
-    #print("p(%s) = %s" % (g,p))
+    print("p(%s) = %s" % (g,p))
     return p
-    #return 1 if g > .3 else 0
+    return 1 if g > .3 else 0
 
 accepted = []
 allPoints = []
-for _ in xrange(50000):
+for _ in xrange(5):
     point = np.random.multivariate_normal([params[l] for l in labels], covariance)
 
     g1 = np.tanh(point[labels.index('g1d')])
     g2 = np.tanh(point[labels.index('g2d')])
     g = np.sqrt(g1**2 + g2**2)
-    #print("g1 = %s, g2 = %s, g = %s" % (g1,g2,g))
+    print("g1 = %s, g2 = %s, g = %s" % (g1,g2,g))
     p = orientation_prior(g)
     r = np.random.random()
-    #print("%s < %s ?" %(r, p))
+    print("%s < %s ?" %(r, p))
     if r < p:
         accepted.append(point)
     allPoints.append(point)
