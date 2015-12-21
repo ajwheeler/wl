@@ -115,4 +115,4 @@ if __name__ == '__main__':
     utils.view_image(egg.array)
     
     params = EggParams()
-    estimate(egg, params, to_estimate=['gd', 'bd', 'gs', 'bs'], step_scale=1.0)
+    estimate(egg, params, to_estimate=['gd', 'bd', 'gs', 'bs'], step_scale=100.0)
