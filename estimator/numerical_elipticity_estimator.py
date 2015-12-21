@@ -4,7 +4,7 @@ import numpy as np
 import time
 
 class EggParams():
-    # NB: gnX is arctanh(gamma_nX)
+    # NB: gX is arctanh(gamma_X)
     rd = 3
     fd = .7
     gd = 0
@@ -56,18 +56,18 @@ class EggParams():
     
 def noisy_egg(params, scale=None, match_image=None, verbose=False, SNR=None):
     disk = galsim.Exponential(half_light_radius=params.rd, flux=params.fd)
-    disk = disk.shear(g=np.tanh(params.gd), beta=params.bd*galsim.radians)
+    disk = disk.shear(g=abs(np.tanh(params.gd)), beta=params.bd*galsim.radians)
     disk = disk.withFlux(params.fd)
 
     bulge = galsim.DeVaucouleurs(half_light_radius=params.rb, flux=params.fb)
-    bulge = bulge.shear(g=np.tanh(params.gb), beta=params.bb*galsim.radians)
+    bulge = bulge.shear(g=abs(np.tanh(params.gb)), beta=params.bb*galsim.radians)
     bulge = bulge.withFlux(params.fb)
 
     psf = galsim.Gaussian(sigma=params.r_psf)
     egg = disk + bulge
 
     #apply shear  
-    egg = egg.shear(g=np.tanh(params.gs), beta=params.bs*galsim.radians)
+    egg = egg.shear(g=abs(np.tanh(params.gs)), beta=params.bs*galsim.radians)
 
     #convolve with point-spread function
     egg = galsim.Convolution(egg, psf)
@@ -115,4 +115,4 @@ if __name__ == '__main__':
     utils.view_image(egg.array)
     
     params = EggParams()
-    estimate(egg, params, to_estimate=['gd', 'bd', 'gs', 'bs'],  step_scale=6.0)
+    estimate(egg, params, to_estimate=['gd', 'bd', 'gs', 'bs'], step_scale=1.0)
