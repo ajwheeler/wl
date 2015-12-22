@@ -1,4 +1,5 @@
 import galsim
+import numpy as np
 
 class EggParams():
     rd = 3
@@ -55,7 +56,7 @@ class EggParams():
                 self.g1s, self.g2s, self.r_psf)
 
     def fromArray(self, array):
-        if a.shape != (10,):
+        if array.shape != (10,):
             raise RuntimeError("parameter array should be a numpy array with shape (10,)")
         self.rd = array[0]
         fd = array[1]
@@ -96,7 +97,7 @@ def egg(params, scale=None, match_image_size=None, verbose=False, SNR=None):
     if match_image_size == None:
         image = egg.drawImage(scale=scale)
     else:
-        image = egg.drawImage(scale=match_image.scale, bounds = match_image.bounds)
+        image = egg.drawImage(scale=match_image_size.scale, bounds = match_image_size.bounds)
 
     if SNR != None:
         image.addNoiseSNR(galsim.GaussianNoise(rng=galsim.BaseDeviate(int(time.time()))),
