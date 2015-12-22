@@ -28,9 +28,10 @@ def lnprob(theta, data, r_psf):
     params.fromArray(theta)
     gal = model.egg(params, match_image_size=data)
     diff = gal.array - data.array
-    return np.sum(diff**2)
+    return -np.sum(diff**2)
 
 trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02)
+#trueParams = model.EggParams()
 
 nwalkers = 22
 ndim = 10
@@ -38,15 +39,12 @@ theta0 = [model.EggParams().toArray() + 1e-4*np.random.randn(ndim) for _ in rang
 sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=[data, trueParams.r_psf])
 
 
-pos, prob, state = sampler.run_mcmc(theta0, 40)
+pos, prob, state = sampler.run_mcmc(theta0, 100)
 sampler.reset()
-sampler.run_mcmc(pos, 100, rstate0=state)
+sampler.run_mcmc(pos, 1000, rstate0=state)
 print("Mean acceptance fraction:", np.mean(sampler.acceptance_fraction))
 print("Autocorrelation time:", sampler.get_autocorr_time())
 
-for i in range(ndim):
-    pl.figure()
-    pl.hist(sampler.flatchain[:,i], 100, color="k", histtype="step")
-    pl.title("Dimension {0:d}".format(i))
-
-pl.show()
+#import drawcorner
+#fig = drawcorner.make_figure(sampler.flatchain, trueParams.toArray())
+#fig.savefig("negativelnL.png")

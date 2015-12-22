@@ -17,19 +17,6 @@ class EggParams():
 
     r_psf = .25
 
-    names = {
-        'rd': 'disk radius (arcseconds)',
-        'fd': 'toal disk flux',
-        'g1d': 'disk IA (gamma) (1)',
-        'g2d': 'disk IA (gamma) (2)',
-        'rb': 'bulge radius (arcseconds)',
-        'fb': 'total bulge flux',
-        'g1b': 'bulge IA (gamma) (1)',
-        'g2b': 'bulge IA (gamma) (2)',
-        'g1s': 'shear (gamma) (1)',
-        'g2s': 'shear (gamma) (2)'
-    }
-
     def __init__(self, **params):
         for k in params:
             if hasattr(self, k):
