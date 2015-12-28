@@ -3,9 +3,12 @@ import emcee
 import numpy as np
 import galsim
 import matplotlib.pyplot as pl
+import argparse
 
+#parameter bounds
 theta_lb = [0,0,-1,-1,0,0,-1,-1,-1,-1]
 theta_ub = [20,20,1,1,20,20,1,1,1,1]
+
 
 class QuietImage(galsim.image.Image):
     """This is a hack so that the error output if emcee has an error calling
@@ -15,6 +18,11 @@ class QuietImage(galsim.image.Image):
 
     def __str__(self):
         return "<galsim image with %s>" % self.bounds
+
+
+parser = argparse.ArgumentParser(description="Sample lnprob")
+parser.add_argument('-n', '--nthreads', default=1, type=int)
+args = parser.parse_args()
 
 trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02)
 data = model.egg(trueParams)
@@ -37,7 +45,7 @@ nwalkers = 50
 ndim = 10
 theta0 = [trueParams.toArray() + 1e-4*np.random.randn(ndim) for _ in range(nwalkers)]
 #theta0 = np.random.uniform(theta_lb, theta_ub, (nwalkers,10))
-sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=[data, trueParams.r_psf])
+sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=[data, trueParams.r_psf], threads=args.nthreads)
 
 
 pos, prob, state = sampler.run_mcmc(theta0, 3000)
