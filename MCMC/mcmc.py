@@ -47,10 +47,20 @@ theta0 = [trueParams.toArray() + 1e-4*np.random.randn(ndim) for _ in range(nwalk
 #theta0 = np.random.uniform(theta_lb, theta_ub, (nwalkers,10))
 sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=[data, trueParams.r_psf], threads=args.nthreads)
 
-
-pos, prob, state = sampler.run_mcmc(theta0, 3000)
+nburnin = 100
+print("Burn in")
+for i, (pos, lnp, state) in enumerate(sampler.sample(p0, iterations=nburnin)):
+    if (i+1) % 100 == 0:
+        print("{0:.1f}%".format(100 * float(i) / nsteps),)
 sampler.reset()
-sampler.run_mcmc(pos, 3000, rstate0=state)
+
+nsample = 1000
+print("Sampling phase")
+for i, (pos, lnp, state) in enumerate(sampler.sample(p0, iterations=nsample)):
+    if (i+1) % 100 == 0:
+        print("{0:.1f}%".format(100 * float(i) / nsteps),)
+
+
 print("Mean acceptance fraction:", np.mean(sampler.acceptance_fraction))
 print("Autocorrelation time:", sampler.get_autocorr_time())
 
