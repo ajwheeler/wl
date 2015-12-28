@@ -33,19 +33,19 @@ def lnprob(theta, data, r_psf):
 trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02)
 #trueParams = model.EggParams()
 
-nwalkers = 100
+nwalkers = 50
 ndim = 10
-#theta0 = [model.EggParams().toArray() + 1e-4*np.random.randn(ndim) for _ in range(nwalkers)]
-theta0 = np.random.uniform(theta_lb, theta_ub, (nwalkers,10))
+theta0 = [trueParams.toArray() + 1e-4*np.random.randn(ndim) for _ in range(nwalkers)]
+#theta0 = np.random.uniform(theta_lb, theta_ub, (nwalkers,10))
 sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=[data, trueParams.r_psf])
 
 
-pos, prob, state = sampler.run_mcmc(theta0, 100)
+pos, prob, state = sampler.run_mcmc(theta0, 3000)
 sampler.reset()
-sampler.run_mcmc(pos, 1000, rstate0=state)
+sampler.run_mcmc(pos, 3000, rstate0=state)
 print("Mean acceptance fraction:", np.mean(sampler.acceptance_fraction))
 print("Autocorrelation time:", sampler.get_autocorr_time())
 
 import drawcorner
 fig = drawcorner.make_figure(sampler.flatchain, trueParams.toArray())
-fig.savefig("uniformtheata0.png")
+fig.savefig("startaroundtruevalues.png")
