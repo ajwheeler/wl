@@ -1,3 +1,4 @@
+from __future__ import print_function
 import model
 import emcee
 import numpy as np
@@ -41,7 +42,7 @@ def lnprob(theta, data, r_psf):
 trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02)
 #trueParams = model.EggParams()
 
-nwalkers = 50
+nwalkers = 500
 ndim = 10
 theta0 = [trueParams.toArray() + 1e-4*np.random.randn(ndim) for _ in range(nwalkers)]
 #theta0 = np.random.uniform(theta_lb, theta_ub, (nwalkers,10))
@@ -49,17 +50,18 @@ sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=[data, trueParams.r
 
 nburnin = 100
 print("Burn in")
-for i, (pos, lnp, state) in enumerate(sampler.sample(p0, iterations=nburnin)):
+for i, (pos, lnp, state) in enumerate(sampler.sample(theta0, iterations=nburnin)):
     if (i+1) % 100 == 0:
-        print("{0:.1f}%".format(100 * float(i) / nsteps),)
+        print("{0:.1f}%".format(100 * float(i) / nburnin),end='')
+print()
 sampler.reset()
 
 nsample = 1000
 print("Sampling phase")
-for i, (pos, lnp, state) in enumerate(sampler.sample(p0, iterations=nsample)):
+for i, (pos, lnp, state) in enumerate(sampler.sample(pos, iterations=nsample, rstate0=state)):
     if (i+1) % 100 == 0:
-        print("{0:.1f}%".format(100 * float(i) / nsteps),)
-
+        print("{0:.1f}%".format(100 * float(i) / nsample),end='')
+print()
 
 print("Mean acceptance fraction:", np.mean(sampler.acceptance_fraction))
 print("Autocorrelation time:", sampler.get_autocorr_time())
