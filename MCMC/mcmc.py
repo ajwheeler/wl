@@ -48,7 +48,7 @@ theta0 = [trueParams.toArray() + 1e-4*np.random.randn(ndim) for _ in range(nwalk
 #theta0 = np.random.uniform(theta_lb, theta_ub, (nwalkers,10))
 sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=[data, trueParams.r_psf], threads=args.nthreads)
 
-nburnin = 100
+nburnin = 5000
 print("Burn in")
 for i, (pos, lnp, state) in enumerate(sampler.sample(theta0, iterations=nburnin)):
     if (i+1) % 100 == 0:
@@ -56,7 +56,7 @@ for i, (pos, lnp, state) in enumerate(sampler.sample(theta0, iterations=nburnin)
 print()
 sampler.reset()
 
-nsample = 1000
+nsample = 10000
 print("Sampling phase")
 for i, (pos, lnp, state) in enumerate(sampler.sample(pos, iterations=nsample, rstate0=state)):
     if (i+1) % 100 == 0:
@@ -68,4 +68,14 @@ print("Autocorrelation time:", sampler.get_autocorr_time())
 
 import drawcorner
 fig = drawcorner.make_figure(sampler.flatchain, trueParams.toArray())
-fig.savefig("startaroundtruevalues.png")
+fig.savefig("tiny.png")
+
+
+f = open('stats', 'w')
+f.write("Mean acceptance fraction:"+str( np.mean(sampler.acceptance_fraction)))
+f.write("Autocorrelation time:" + str(sampler.get_autocorr_time()))
+f.close()
+
+
+np.save("chain.npy", sampler.flatchain)
+
