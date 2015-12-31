@@ -9,3 +9,13 @@ def make_figure(samples, true_vals):
                            show_titles=True)
     
     return figure
+
+if __name__ == '__main__':
+    import numpy as np
+    import model
+
+    chain = np.load("parallelensemblechain.npy")
+    trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02)
+    fig = make_figure(chain, trueParams.toArray())
+
+    fig.savefig("longparallel.png")
