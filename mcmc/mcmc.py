@@ -23,6 +23,9 @@ class QuietImage(galsim.image.Image):
 
 parser = argparse.ArgumentParser(description="Sample lnprob")
 parser.add_argument('-n', '--nthreads', default=1, type=int)
+parser.add_argument('-w', '--nwalkers', default=100, type=int)
+parser.add_argument('-b', '--nburnin', default=500, type=int)
+parser.add_argument('-s', '--nsample', default=500, type=int)
 args = parser.parse_args()
 
 trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02)
@@ -42,13 +45,13 @@ def lnprob(theta, data, r_psf):
 trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02)
 #trueParams = model.EggParams()
 
-nwalkers = 1000
+nwalkers = args.nwalkers
 ndim = 10
 theta0 = [trueParams.toArray() + 1e-4*np.random.randn(ndim) for _ in range(nwalkers)]
 #theta0 = np.random.uniform(theta_lb, theta_ub, (nwalkers,10))
 sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=[data, trueParams.r_psf], threads=args.nthreads)
 
-nburnin = 1000
+nburnin = args.nburnin
 print("Burn in")
 for i, (pos, lnp, state) in enumerate(sampler.sample(theta0, iterations=nburnin)):
     if (i+1) % 100 == 0:
@@ -56,7 +59,7 @@ for i, (pos, lnp, state) in enumerate(sampler.sample(theta0, iterations=nburnin)
 print()
 sampler.reset()
 
-nsample = 5000
+nsample = args.nsample
 print("Sampling phase")
 for i, (pos, lnp, state) in enumerate(sampler.sample(pos, iterations=nsample, rstate0=state)):
     if (i+1) % 100 == 0:
@@ -70,12 +73,13 @@ import drawcorner
 fig = drawcorner.make_figure(sampler.flatchain, trueParams.toArray())
 fig.savefig("tiny.png")
 
+name = "%s.%s.%s" % (nwalkers, nburnin, nsample)
 
-f = open('stats', 'w')
+f = open(name+'.stats', 'w')
 f.write("Mean acceptance fraction:"+str( np.mean(sampler.acceptance_fraction)))
 f.write("Autocorrelation time:" + str(sampler.get_autocorr_time()))
 f.close()
 
 
-np.save("chain.npy", sampler.flatchain)
+np.save(name+".chain.npy", sampler.flatchain)
 
