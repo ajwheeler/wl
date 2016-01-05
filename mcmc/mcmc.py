@@ -7,8 +7,8 @@ import matplotlib.pyplot as pl
 import argparse
 
 #parameter bounds
-theta_lb = [0,0,-1,-1,0,0,-1,-1,-1,-1]
-theta_ub = [20,20,1,1,20,20,1,1,1,1]
+theta_lb = [0,0,-1,-1,0,0,-1,-1,-.2,-.2]
+theta_ub = [20,20,1,1,20,20,1,1,.2,.2]
 
 
 class QuietImage(galsim.image.Image):
@@ -30,6 +30,13 @@ def lnprob(theta, data, r_psf):
 
     params = model.EggParams(r_psf=r_psf)
     params.fromArray(theta)
+
+    # use g < .99 instead of g < 1 because fft can't handle g~1
+    if params.g1d**2 + params.g2d**2 > .97 \
+       or params.g1b**2 + params.g2b**2 > .97\
+       or params.g1s**2 + params.g2s**2 > .97:
+        return -np.inf
+
     gal = model.egg(params, match_image_size=data)
     diff = gal.array - data.array
     return -np.sum(diff**2)
