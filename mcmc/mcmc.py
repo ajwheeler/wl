@@ -32,8 +32,8 @@ def lnprob(theta, data, r_psf):
     params.fromArray(theta)
 
     # use g < .99 instead of g < 1 because fft can't handle g~1
-    if np.sqrt(params.g1d**2 + params.g2d**2) > .95 \
-       or np.sqrt(params.g1b**2 + params.g2b**2) > .95:
+    if np.sqrt(params.g1d**2 + params.g2d**2) > .9 \
+       or np.sqrt(params.g1b**2 + params.g2b**2) > .9:
         return -np.inf
 
     gal = model.egg(params, match_image_size=data)
