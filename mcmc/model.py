@@ -81,10 +81,11 @@ def egg(params, scale=None, match_image_size=None, verbose=False, SNR=None):
     #convolve with point-spread function
     egg = galsim.Convolution(egg, psf)
 
+    big_fft_params = galsim.GSParams(maximum_fft_size=10240)
     if match_image_size == None:
-        image = egg.drawImage(scale=scale)
+        image = egg.drawImage(scale=scale, params=big_fft_params)
     else:
-        image = egg.drawImage(scale=match_image_size.scale, bounds = match_image_size.bounds)
+        image = egg.drawImage(scale=match_image_size.scale, bounds = match_image_size.bounds, params=big_fft_params)
 
     if SNR != None:
         image.addNoiseSNR(galsim.GaussianNoise(rng=galsim.BaseDeviate(int(time.time()))),
