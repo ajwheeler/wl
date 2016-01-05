@@ -79,13 +79,13 @@ def egg(params, scale=None, match_image_size=None, verbose=False, SNR=None):
     egg = egg.shear(g1=params.g1s, g2=params.g2s)
 
     #convolve with point-spread function
-    egg = galsim.Convolution(egg, psf)
-
     big_fft_params = galsim.GSParams(maximum_fft_size=10240)
+    egg = galsim.Convolution(egg, psf, gsparams=big_fft_params)
+
     if match_image_size == None:
-        image = egg.drawImage(scale=scale, params=big_fft_params)
+        image = egg.drawImage(scale=scale)
     else:
-        image = egg.drawImage(scale=match_image_size.scale, bounds = match_image_size.bounds, params=big_fft_params)
+        image = egg.drawImage(scale=match_image_size.scale, bounds = match_image_size.bounds)
 
     if SNR != None:
         image.addNoiseSNR(galsim.GaussianNoise(rng=galsim.BaseDeviate(int(time.time()))),
