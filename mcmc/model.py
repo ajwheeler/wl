@@ -46,17 +46,17 @@ class EggParams():
         if array.shape != (10,):
             raise RuntimeError("parameter array should be a numpy array with shape (10,)")
         self.rd = array[0]
-        fd = array[1]
-        g1d = array[2]
-        g2d = array[3]
+        self.fd = array[1]
+        self.g1d = array[2]
+        self.g2d = array[3]
 
-        rb = array[4]
-        fb = array[5]
-        g1b = array[6]
-        g2b = array[7]
+        self.rb = array[4]
+        self.fb = array[5]
+        self.g1b = array[6]
+        self.g2b = array[7]
 
-        g1s = array[8]
-        g2s = array[9]
+        self.g1s = array[8]
+        self.g2s = array[9]
 
     def toArray(self):
         return np.array([self.rd, self.fd, self.g1d, self.g2d, self.rb, self.fb, self.g1b,
