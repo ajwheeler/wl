@@ -79,10 +79,6 @@ if __name__ == '__main__':
     print("Mean acceptance fraction:", np.mean(sampler.acceptance_fraction))
     print("Autocorrelation time:", sampler.get_autocorr_time())
 
-    import drawcorner
-    fig = drawcorner.make_figure(sampler.flatchain, trueParams.toArray())
-    fig.savefig("tiny.png")
-
     name = "%s.%s.%s" % (nwalkers, nburnin, nsample)
 
     f = open(name+'.stats', 'w')
@@ -93,3 +89,6 @@ if __name__ == '__main__':
 
     np.save(name+".chain.npy", sampler.flatchain)
 
+    import drawcorner
+    fig = drawcorner.make_figure(sampler.flatchain, trueParams.toArray())
+    fig.savefig("tiny.png")
