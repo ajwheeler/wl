@@ -36,7 +36,13 @@ def lnprob(theta, data, r_psf):
        or np.sqrt(params.g1b**2 + params.g2b**2) > .9:
         return -np.inf
 
-    gal = model.egg(params, match_image_size=data)
+    try:
+        gal = model.egg(params, match_image_size=data)
+    except RuntimeError:
+        print("error with these parameters:")
+        print(params)
+        return -np.inf
+
     diff = gal.array - data.array
     return -np.sum(diff**2)
 
