@@ -52,43 +52,50 @@ if __name__ == '__main__':
     parser.add_argument('-w', '--nwalkers', default=100, type=int)
     parser.add_argument('-b', '--nburnin', default=500, type=int)
     parser.add_argument('-s', '--nsample', default=500, type=int)
+    parser.add_argument('-p', '--parallel-tempered', action='store_true')
     args = parser.parse_args()
 
+    print(args)
 
-    nwalkers = args.nwalkers
     ndim = 10
-    theta0 = [trueParams.toArray() + 1e-4*np.random.randn(ndim) for _ in range(nwalkers)]
-    #theta0 = np.random.uniform(theta_lb, theta_ub, (nwalkers,10))
-    sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=[data, trueParams.r_psf], threads=args.nthreads)
+    if args.parallel_tempered:
+        ntemps = 20
+        theta0 = [[trueParams.toArray() + 1e-4*np.random.randn(ndim) \
+                   for _ in range(args.nwalkers)] for _ in range(ntemps)]
+        def logp(x):
+            return 0.01
+        sampler = emcee.PTSampler(ntemps, args.nwalkers, ndim, lnprob, logp, 
+                                  loglargs=[data, trueParams.r_psf], threads=args.nthreads)
+    else:
+        theta0 = [trueParams.toArray() + 1e-4*np.random.randn(ndim) for _ in range(args.nwalkers)]
+        #theta0 = np.random.uniform(theta_lb, theta_ub, (args.nwalkers,10))
+        sampler = emcee.EnsembleSampler(args.nwalkers, ndim, lnprob, 
+                                        args=[data, trueParams.r_psf], threads=args.nthreads)
 
-    nburnin = args.nburnin
-    print("Burn in")
-    for i, (pos, lnp, state) in enumerate(sampler.sample(theta0, iterations=nburnin)):
-        if (i+1) % 100 == 0:
-            print("{0:.1f}%".format(100 * float(i) / nburnin),end='')
-    print()
+    print("Burn in...")
+    pos, _, state = sampler.run_mcmc(theta0, args.nburnin)
     sampler.reset()
 
-    nsample = args.nsample
-    print("Sampling phase")
-    for i, (pos, lnp, state) in enumerate(sampler.sample(pos, iterations=nsample, rstate0=state)):
-        if (i+1) % 100 == 0:
-            print("{0:.1f}%".format(100 * float(i) / nsample),end='')
-    print()
+    print("Sampling phase...")
+    sampler.run_mcmc(pos, args.nsample, rstate0=state)
 
-    print("Mean acceptance fraction:", np.mean(sampler.acceptance_fraction))
-    print("Autocorrelation time:", sampler.get_autocorr_time())
+    stats =  "Mean acceptance fraction:" + str(np.mean(sampler.acceptance_fraction)) + '\n'\
+             + "Autocorrelation time:" + str(sampler.get_autocorr_time())
+    print(stats)
 
-    name = "%s.%s.%s" % (nwalkers, nburnin, nsample)
+    name = "%s.%s.%s" % (args.nwalkers, args.nburnin, args.nsample)
+    if args.parallel_tempered:
+        name += '.pt'
 
     f = open(name+'.stats', 'w')
-    f.write("Mean acceptance fraction:"+str( np.mean(sampler.acceptance_fraction)) + "\n")
-    f.write("Autocorrelation time:" + str(sampler.get_autocorr_time()))
+    f.write(stats)
     f.close()
-
 
     np.save(name+".chain.npy", sampler.flatchain)
 
     import drawcorner
-    fig = drawcorner.make_figure(sampler.flatchain, trueParams.toArray())
-    fig.savefig("tiny.png")
+    chain = sampler.flatchain
+    if args.parallel_tempered:
+        chain = chain.reshape(ntemps*args.nwalkers*args.nsample, ndim)
+    fig = drawcorner.make_figure(chain, trueParams.toArray())
+    fig.savefig(name + ".png")
