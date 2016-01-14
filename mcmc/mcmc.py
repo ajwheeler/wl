@@ -5,6 +5,7 @@ import numpy as np
 import galsim
 import matplotlib.pyplot as pl
 import argparse
+import time
 
 #parameter bounds
 theta_lb = [0,0,-1,-1,0,0,-1,-1,-.2,-.2]
@@ -81,11 +82,14 @@ if __name__ == '__main__':
 
     stats =  "Mean acceptance fraction:" + str(np.mean(sampler.acceptance_fraction)) + '\n'\
              + "Autocorrelation time:" + str(sampler.get_autocorr_time())
+    stats += "\ntrue params: " + str(trueParams)
     print(stats)
 
     name = "%s.%s.%s" % (args.nwalkers, args.nburnin, args.nsample)
     if args.parallel_tempered:
         name += '.pt'
+    t = time.localtime()
+    name += "." + str(t.tm_mon) + "-" + str(t.tm_mday)
 
     f = open(name+'.stats', 'w')
     f.write(stats)
