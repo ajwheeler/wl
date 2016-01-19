@@ -17,6 +17,8 @@ class EggParams():
 
     r_psf = .25
 
+    labels = ['rd','fd','g1d','g2d','rb','fb','g1b','g1b','g1s','g2s','r_psf']
+
     def __init__(self, **params):
         for k in params:
             if hasattr(self, k):
@@ -37,30 +39,29 @@ class EggParams():
 
 
     def __repr__(self):
-        return "Disk{r=%s, I=%s, g1=%s, g2=%s}, Bulge{r=%s, I=%s, g1=%s, g2=%s}, Shear{g1=%s, g2=%s}, r_psf=%s, " \
+        return "Disk{r=%s, I=%s, g1=%s, g2=%s}, Bulge{r=%s, I=%s, g1=%s, g2=%s}, Shear{g1=%s, g2=%s}, r_psf=%s " \
             % (self.rd, self.fd, self.g1d, self.g2d, 
                self.rb, self.fb, self.g1b, self.g2b, 
                 self.g1s, self.g2s, self.r_psf)
 
-    def fromArray(self, array):
-        if array.shape != (10,):
-            raise RuntimeError("parameter array should be a numpy array with shape (10,)")
-        self.rd = array[0]
-        self.fd = array[1]
-        self.g1d = array[2]
-        self.g2d = array[3]
+    def fromArray(self, array, mask=[True]*10):
+        if array.shape != (mask.count(True),):
+            raise RuntimeError("parameter array should be a numpy array with shape (%s,)" 
+                               % mask.count(True))
+                
+        j = 0
+        for i in xrange(10):
+            if mask[i]:
+                self[self.labels[i]] = array[j]
+                j += 1
+        
 
-        self.rb = array[4]
-        self.fb = array[5]
-        self.g1b = array[6]
-        self.g2b = array[7]
-
-        self.g1s = array[8]
-        self.g2s = array[9]
-
-    def toArray(self):
-        return np.array([self.rd, self.fd, self.g1d, self.g2d, self.rb, self.fb, self.g1b,
-                         self.g2b, self.g1s, self.g2s])
+    def toArray(self, mask=[True]*10):
+        vals = []
+        for i in xrange(10):
+            if mask[i]:
+                vals.append(self[self.labels[i]])
+        return np.array(vals)
 
 
 def egg(params, scale=None, match_image_size=None, verbose=False, SNR=None):
