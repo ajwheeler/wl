@@ -1,16 +1,21 @@
-from __future__ import print_function
+from  __future__ import print_function
 import model
 import emcee
 import numpy as np
 import galsim
-import matplotlib.pyplot as pl
 import argparse
 import time
+import copy
+from itertools import compress
 
 #parameter bounds
 theta_lb = [0,0,-1,-1,0,0,-1,-1,-.2,-.2]
 theta_ub = [20,20,1,1,20,20,1,1,.2,.2]
 
+trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02)
+mask = [False, False, True, True, False, False, True, True, True, True]
+theta_lb = list(compress(theta_lb, mask))
+theta_ub = list(compress(theta_ub, mask))
 
 class QuietImage(galsim.image.Image):
     """This is a hack so that the error output if emcee has an error calling
@@ -21,7 +26,6 @@ class QuietImage(galsim.image.Image):
     def __str__(self):
         return "<galsim image with %s>" % self.bounds
 
-trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02)
 data = model.egg(trueParams)
 data.__class__ = QuietImage
 
@@ -30,7 +34,8 @@ def lnprob(theta, data, r_psf):
         return -np.inf
 
     params = model.EggParams(r_psf=r_psf)
-    params.fromArray(theta)
+    params = copy.copy(trueParams)
+    params.fromArray(theta, mask)
 
     # use g < .99 instead of g < 1 because fft can't handle g~1
     if np.sqrt(params.g1d**2 + params.g2d**2) > .9 \
@@ -58,18 +63,17 @@ if __name__ == '__main__':
 
     print(args)
 
-    ndim = 10
+    ndim = mask.count(True)
     if args.parallel_tempered:
         ntemps = 20
-        theta0 = [[trueParams.toArray() + 1e-4*np.random.randn(ndim) \
+        theta0 = [[trueParams.toArray(mask) + 1e-4*np.random.randn(ndim) \
                    for _ in range(args.nwalkers)] for _ in range(ntemps)]
         def logp(x):
             return 0.01
         sampler = emcee.PTSampler(ntemps, args.nwalkers, ndim, lnprob, logp, 
                                   loglargs=[data, trueParams.r_psf], threads=args.nthreads)
     else:
-        theta0 = [trueParams.toArray() + 1e-4*np.random.randn(ndim) for _ in range(args.nwalkers)]
-        #theta0 = np.random.uniform(theta_lb, theta_ub, (args.nwalkers,10))
+        theta0 = [trueParams.toArray(mask) + 1e-4*np.random.randn(ndim) for _ in range(args.nwalkers)]
         sampler = emcee.EnsembleSampler(args.nwalkers, ndim, lnprob, 
                                         args=[data, trueParams.r_psf], threads=args.nthreads)
 
@@ -101,5 +105,5 @@ if __name__ == '__main__':
     chain = sampler.flatchain
     if args.parallel_tempered:
         chain = chain.reshape(ntemps*args.nwalkers*args.nsample, ndim)
-    fig = drawcorner.make_figure(chain, trueParams.toArray())
+    fig = drawcorner.make_figure(chain, trueParams.toArray(mask), mask=mask)
     fig.savefig(name + ".png")
