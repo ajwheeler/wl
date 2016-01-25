@@ -10,10 +10,10 @@ from itertools import compress
 
 #parameter bounds
 theta_lb = [0,0,-1,-1,0,0,-1,-1,-.2,-.2]
-theta_ub = [20,20,1,1,20,20,1,1,.2,.2]
+theta_ub = [8,5,1,1,7,4,1,1,.2,.2]
 
 trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02)
-mask = [False, False, True, True, False, False, True, True, True, True]
+mask = [False, False, False, False, False, False, False, True, False, False]
 theta_lb = list(compress(theta_lb, mask))
 theta_ub = list(compress(theta_ub, mask))
 

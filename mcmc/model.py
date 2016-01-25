@@ -17,7 +17,7 @@ class EggParams():
 
     r_psf = .25
 
-    labels = ['rd','fd','g1d','g2d','rb','fb','g1b','g1b','g1s','g2s','r_psf']
+    labels = ['rd','fd','g1d','g2d','rb','fb','g1b','g2b','g1s','g2s','r_psf']
 
     def __init__(self, **params):
         for k in params:
@@ -48,7 +48,7 @@ class EggParams():
         if array.shape != (mask.count(True),):
             raise RuntimeError("parameter array should be a numpy array with shape (%s,)" 
                                % mask.count(True))
-                
+             
         j = 0
         for i in xrange(10):
             if mask[i]:
