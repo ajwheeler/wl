@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-chain = np.load("500.1000.3000.chain.npy")
+chain = np.load("50.100.250.1-25.chain.npy")
 
 paramPos = 2 #g1d
 

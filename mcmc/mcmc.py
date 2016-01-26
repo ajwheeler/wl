@@ -13,7 +13,7 @@ theta_lb = [0,0,-1,-1,0,0,-1,-1,-.2,-.2]
 theta_ub = [8,5,1,1,7,4,1,1,.2,.2]
 
 trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02)
-mask = [False, False, False, False, False, False, False, True, False, False]
+mask = [False, False, True, False, False, False, True, False, False, False]
 theta_lb = list(compress(theta_lb, mask))
 theta_ub = list(compress(theta_ub, mask))
 
@@ -50,7 +50,9 @@ def lnprob(theta, data, r_psf):
         return -np.inf
 
     diff = gal.array - data.array
-    return -np.sum(diff**2)
+    p = -np.sum(diff**2)
+    #print("P(%s) = %s" % (theta, p))
+    return p * 10.0
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Sample lnprob")
@@ -93,7 +95,7 @@ if __name__ == '__main__':
     if args.parallel_tempered:
         name += '.pt'
     t = time.localtime()
-    name += "." + str(t.tm_mon) + "-" + str(t.tm_mday)
+    name = str(t.tm_mon) + "-" + str(t.tm_mday) + "." + name
 
     f = open(name+'.stats', 'w')
     f.write(stats)
