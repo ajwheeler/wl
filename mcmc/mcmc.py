@@ -13,7 +13,7 @@ theta_lb = [0,0,-1,-1,0,0,-1,-1,-.2,-.2]
 theta_ub = [8,5,1,1,7,4,1,1,.2,.2]
 
 trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02)
-mask = [False, False, True, False, False, False, True, False, False, False]
+mask = [False, False, True, True, False, False, True, True, True, True]
 theta_lb = list(compress(theta_lb, mask))
 theta_ub = list(compress(theta_ub, mask))
 
@@ -28,6 +28,7 @@ class QuietImage(galsim.image.Image):
 
 data = model.egg(trueParams)
 data.__class__ = QuietImage
+
 
 def lnprob(theta, data, r_psf):
     if not all(theta > theta_lb) or not all(theta < theta_ub):
@@ -51,8 +52,7 @@ def lnprob(theta, data, r_psf):
 
     diff = gal.array - data.array
     p = -np.sum(diff**2)
-    #print("P(%s) = %s" % (theta, p))
-    return p * 10.0
+    return p * 100000.0
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Sample lnprob")
@@ -78,6 +78,16 @@ if __name__ == '__main__':
         theta0 = [trueParams.toArray(mask) + 1e-4*np.random.randn(ndim) for _ in range(args.nwalkers)]
         sampler = emcee.EnsembleSampler(args.nwalkers, ndim, lnprob, 
                                         args=[data, trueParams.r_psf], threads=args.nthreads)
+
+
+    #t = np.array([0.2,-1.0])
+    #while t[1] <= 1.0:
+    #    print(t)
+    #    print(sampler.lnprobfn)
+    #    print("P(%s) = %s" % 
+    #          (t,
+    #           sampler.get_lnprob(t)))
+    #    t[1] += 0.1  
 
     print("Burn in...")
     pos, _, state = sampler.run_mcmc(theta0, args.nburnin)
