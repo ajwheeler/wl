@@ -16,5 +16,5 @@ for theta in chain:
     if np.random.rand() < gamma:
         accepted.append(theta)
 
-
+print(len(accepted))
 np.save(args.output_file, np.array(accepted))
