@@ -65,6 +65,8 @@ class EggParams():
 
 
 def egg(params, scale=None, match_image_size=None, verbose=False, SNR=None):
+    rfr = np.sqrt(5.0)#root green/red flux ratio
+
     disk = galsim.Exponential(half_light_radius=params.rd, flux=params.fd)
     disk = disk.shear(g1=params.g1d, g2=params.g2d)
     disk = disk.withFlux(params.fd)
@@ -73,24 +75,29 @@ def egg(params, scale=None, match_image_size=None, verbose=False, SNR=None):
     bulge = bulge.shear(g1=params.g1b, g2=params.g2b)
     bulge = bulge.withFlux(params.fb)
 
-    psf = galsim.Gaussian(sigma=params.r_psf)
-    egg = disk + bulge
+    green_egg = (disk*rfr + bulge/rfr).withFlux(1.0)
+    red_egg = (disk/rfr + bulge*rfr).withFlux(1.0)
+    
+    images = []
+    for egg in [green_egg, red_egg]:
+        #apply shear  
+        egg = egg.shear(g1=params.g1s, g2=params.g2s)
 
-    #apply shear  
-    egg = egg.shear(g1=params.g1s, g2=params.g2s)
+        #convolve with point-spread function
+        big_fft_params = galsim.GSParams(maximum_fft_size=10240)
+        psf = galsim.Gaussian(sigma=params.r_psf)
+        egg = galsim.Convolution(egg, psf, gsparams=big_fft_params)
+        if match_image_size == None:
+            image = egg.drawImage(scale=scale)
+        else:
+            image = egg.drawImage(scale=match_image_size.scale, bounds = match_image_size.bounds)
 
-    #convolve with point-spread function
-    big_fft_params = galsim.GSParams(maximum_fft_size=10240)
-    egg = galsim.Convolution(egg, psf, gsparams=big_fft_params)
-    if match_image_size == None:
-        image = egg.drawImage(scale=scale)
-    else:
-        image = egg.drawImage(scale=match_image_size.scale, bounds = match_image_size.bounds)
+        if SNR != None:
+            image.addNoiseSNR(galsim.GaussianNoise(rng=galsim.BaseDeviate(int(time.time()))),
+                              SNR, preserve_flux=True)
+        images.append(image)
 
-    if SNR != None:
-        image.addNoiseSNR(galsim.GaussianNoise(rng=galsim.BaseDeviate(int(time.time()))),
-                          SNR, preserve_flux=True)
-    return image
+    return (images[0], images[1])
 
 
     
