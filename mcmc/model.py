@@ -90,7 +90,8 @@ def egg(params, scale=None, match_image_size=None, verbose=False, SNR=None):
         if match_image_size == None:
             image = egg.drawImage(scale=scale)
         else:
-            image = egg.drawImage(scale=match_image_size.scale, bounds = match_image_size.bounds)
+            image = egg.drawImage(scale=match_image_size[0].scale, 
+                                  bounds = match_image_size[0].bounds)
 
         if SNR != None:
             image.addNoiseSNR(galsim.GaussianNoise(rng=galsim.BaseDeviate(int(time.time()))),

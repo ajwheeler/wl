@@ -27,8 +27,8 @@ class QuietImage(galsim.image.Image):
         return "<galsim image with %s>" % self.bounds
 
 data = model.egg(trueParams)
-data.__class__ = QuietImage
-
+data[0].__class__ = QuietImage #g band image
+data[1].__class__ = QuietImage #r band image
 
 def lnprob(theta, data, r_psf):
     if not all(theta > theta_lb) or not all(theta < theta_ub):
@@ -38,20 +38,21 @@ def lnprob(theta, data, r_psf):
     params = copy.copy(trueParams)
     params.fromArray(theta, mask)
 
-    # use g < .99 instead of g < 1 because fft can't handle g~1
+    # use g < .9 instead of g < 1 because fft can't handle g~1
     if np.sqrt(params.g1d**2 + params.g2d**2) > .9 \
        or np.sqrt(params.g1b**2 + params.g2b**2) > .9:
         return -np.inf
 
     try:
-        gal = model.egg(params, match_image_size=data)
+        gals = model.egg(params, match_image_size=data)
     except RuntimeError:
-        print("error with these parameters:")
+        print("error drawing galaxy with these parameters:")
         print(params)
         return -np.inf
 
-    diff = gal.array - data.array
-    p = -np.sum(diff**2)
+    g_diff = gals[0].array - data[0].array
+    r_diff = gals[1].array - data[1].array
+    p = -.5*(np.sum(g_diff**2) + np.sum(r_diff**2))
     return p * 100000.0
 
 if __name__ == '__main__':
