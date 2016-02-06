@@ -65,7 +65,7 @@ class EggParams():
 
 
 def egg(params, scale=None, match_image_size=None, verbose=False, SNR=None):
-    rfr = np.sqrt(5.0)#root green/red flux ratio
+    rfr = 5.0**.25
 
     disk = galsim.Exponential(half_light_radius=params.rd, flux=params.fd)
     disk = disk.shear(g1=params.g1d, g2=params.g2d)
