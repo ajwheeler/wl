@@ -7,7 +7,7 @@ def make_figure(samples, true_vals, mask=[True]*10):
               r"$R_{bulge}$", r"$F_{bulge}$", r"$\gamma_1^{bulge}$", r"$\gamma_2^{bulge}$",
               r"$\gamma_1^{shear}$", r"$\gamma_2^{shear}$"]
     labels = list(compress(labels, mask))
-    ranges = [(0,8), (0,5), (-1,1),(-1,1),(0,7), (0,4),(-1,1),(-1,1),(-1,1),(-1,1)]
+    ranges = [(0,8), (0,5), (-1,1),(-1,1),(0,7), (0,4),(-1,1),(-1,1),(-.2,.2),(-.2,.2)]
     figure = corner.corner(samples, labels=labels,
                            truths=true_vals,
                            show_titles=True,

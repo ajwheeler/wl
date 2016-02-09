@@ -75,8 +75,8 @@ def egg(params, scale=None, match_image_size=None, verbose=False, SNR=None):
     bulge = bulge.shear(g1=params.g1b, g2=params.g2b)
     bulge = bulge.withFlux(params.fb)
 
-    green_egg = (disk*rfr + bulge/rfr).withFlux(1.0)
-    red_egg = (disk/rfr + bulge*rfr).withFlux(1.0)
+    green_egg = (disk*rfr + bulge/rfr)
+    red_egg = (disk/rfr + bulge*rfr)
     
     images = []
     for egg in [green_egg, red_egg]:

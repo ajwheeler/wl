@@ -16,5 +16,5 @@ for theta in chain:
     if np.random.rand() < gamma:
         accepted.append(theta)
 
-print(len(accepted))
+print(str(len(accepted)) + " accepted out of " + str(len(chain)))
 np.save(args.output_file, np.array(accepted))
