@@ -64,7 +64,7 @@ class EggParams():
         return np.array(vals)
 
 
-def egg(params, scale=None, match_image_size=None, verbose=False, SNR=None):
+def egg(params, scale=None, match_image_size=None, dual_band=True, SNR=None):
     rfr = 5.0**.25
 
     disk = galsim.Exponential(half_light_radius=params.rd, flux=params.fd)
@@ -75,10 +75,14 @@ def egg(params, scale=None, match_image_size=None, verbose=False, SNR=None):
     bulge = bulge.shear(g1=params.g1b, g2=params.g2b)
     bulge = bulge.withFlux(params.fb)
 
-    green_egg = (disk*rfr + bulge/rfr)
-    red_egg = (disk/rfr + bulge*rfr)
-    
+    if dual_band:
+        green_egg = (disk*rfr + bulge/rfr)
+        red_egg = (disk/rfr + bulge*rfr)
+    else:
+        egg = disk + bulge
+
     images = []
+    eggs =  [green_egg, red_egg] if dual_band else [egg]
     for egg in [green_egg, red_egg]:
         #apply shear  
         egg = egg.shear(g1=params.g1s, g2=params.g2s)
@@ -94,11 +98,10 @@ def egg(params, scale=None, match_image_size=None, verbose=False, SNR=None):
                                   bounds = match_image_size[0].bounds)
 
         if SNR != None:
-            image.addNoiseSNR(galsim.GaussianNoise(rng=galsim.BaseDeviate(int(time.time()))),
-                              SNR, preserve_flux=True)
+            image.addNoiseSNR(galsim.GaussianNoise(rng=galsim.BaseDeviate(int(time.time()))),SNR, preserve_flux=True)
         images.append(image)
 
-    return (images[0], images[1])
+    return (images[0], images[1]) if dual_band else egg
 
 
     
