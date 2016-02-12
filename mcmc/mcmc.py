@@ -8,7 +8,7 @@ import time
 import copy
 from itertools import compress
 
-DUAL_BAND = True
+DUAL_BAND = False
 
 #parameter bounds
 theta_lb = [0,0,-1,-1,0,0,-1,-1,-.2,-.2]
@@ -28,7 +28,7 @@ class QuietImage(galsim.image.Image):
     def __str__(self):
         return "<galsim image with %s>" % self.bounds
 
-data = model.egg(trueParams)
+data = model.egg(trueParams, dual_band=DUAL_BAND)
 if DUAL_BAND:
     data[0].__class__ = QuietImage #g band image
     data[1].__class__ = QuietImage #r band image
@@ -49,15 +49,23 @@ def lnprob(theta, data, r_psf):
         return -np.inf
 
     try:
-        gals = model.egg(params, match_image_size=data)
+        #a single imgage (i.e. not a pair of g/r band images
+        #for the model to size-match
+        single_image = data[0] if DUAL_BAND else data
+        gals = model.egg(params, match_image_size=single_image, dual_band=DUAL_BAND)
     except RuntimeError:
         print("error drawing galaxy with these parameters:")
         print(params)
         return -np.inf
 
-    g_diff = gals[0].array - data[0].array
-    r_diff = gals[1].array - data[1].array
-    p = -.5*(np.sum(g_diff**2) + np.sum(r_diff**2))
+    if DUAL_BAND:
+        g_diff = gals[0].array - data[0].array
+        r_diff = gals[1].array - data[1].array
+        p = -.5*(np.sum(g_diff**2) + np.sum(r_diff**2))
+    else:
+        diff = gals.array - data.array
+        p = np.sum(diff**2)
+
     return p * 100000.0
 
 if __name__ == '__main__':
@@ -84,16 +92,6 @@ if __name__ == '__main__':
         theta0 = [trueParams.toArray(mask) + 1e-4*np.random.randn(ndim) for _ in range(args.nwalkers)]
         sampler = emcee.EnsembleSampler(args.nwalkers, ndim, lnprob, 
                                         args=[data, trueParams.r_psf], threads=args.nthreads)
-
-
-    #t = np.array([0.2,-1.0])
-    #while t[1] <= 1.0:
-    #    print(t)
-    #    print(sampler.lnprobfn)
-    #    print("P(%s) = %s" % 
-    #          (t,
-    #           sampler.get_lnprob(t)))
-    #    t[1] += 0.1  
 
     print("Burn in...")
     pos, _, state = sampler.run_mcmc(theta0, args.nburnin)

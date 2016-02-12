@@ -78,12 +78,15 @@ def egg(params, scale=None, match_image_size=None, dual_band=True, SNR=None):
     if dual_band:
         green_egg = (disk*rfr + bulge/rfr)
         red_egg = (disk/rfr + bulge*rfr)
+
+        N = (params.fd + params.fb)/(green_egg.flux + red_egg.flux)
+        green_egg  = green_egg.withFlux(green_egg.flux * N)
+        red_egg  = red_egg.withFlux(red_egg.flux * N)
     else:
         egg = disk + bulge
 
     images = []
-    eggs =  [green_egg, red_egg] if dual_band else [egg]
-    for egg in [green_egg, red_egg]:
+    for egg in [green_egg, red_egg] if dual_band else [egg]:
         #apply shear  
         egg = egg.shear(g1=params.g1s, g2=params.g2s)
 
@@ -94,11 +97,12 @@ def egg(params, scale=None, match_image_size=None, dual_band=True, SNR=None):
         if match_image_size == None:
             image = egg.drawImage(scale=scale)
         else:
-            image = egg.drawImage(scale=match_image_size[0].scale, 
-                                  bounds = match_image_size[0].bounds)
+            image = egg.drawImage(scale=match_image_size.scale, 
+                                  bounds = match_image_size.bounds)
 
         if SNR != None:
-            image.addNoiseSNR(galsim.GaussianNoise(rng=galsim.BaseDeviate(int(time.time()))),SNR, preserve_flux=True)
+            image.addNoiseSNR(galsim.GaussianNoise(rng=galsim.BaseDeviate(int(time.time()))),
+                              SNR, preserve_flux=True)
         images.append(image)
 
     return (images[0], images[1]) if dual_band else images[0]

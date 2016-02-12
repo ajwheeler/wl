@@ -2,12 +2,11 @@ import numpy as np
 import argparse
 import mcmc
 
-mu = -.83
-sigma = .08
+power = -.83
 
 R = mcmc.trueParams.rb
 F = mcmc.trueParams.fd
-alpha = R/((F/(R**2))**mu)
+alpha = R/((F/(R**2))**power)
 
 parser = argparse.ArgumentParser(description="apply prior")
 parser.add_argument('chain_file', type=str)
@@ -21,8 +20,8 @@ for theta in chain:
     R = theta[4]
     F = theta[5]
     I = F/(R**2)
-
-    x = np.log(R/(alpha * I**mu))/np.log(I)
+    
+    x = R - alpha*I**power
     p = 1/(sigma*np.sqrt(2*np.pi)) * np.exp(-(x**2)/(2*sigma**2))
     
     if np.random.rand() < p:
