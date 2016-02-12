@@ -8,6 +8,8 @@ import time
 import copy
 from itertools import compress
 
+DUAL_BAND = True
+
 #parameter bounds
 theta_lb = [0,0,-1,-1,0,0,-1,-1,-.2,-.2]
 theta_ub = [8,5,1,1,7,4,1,1,.2,.2]
@@ -27,8 +29,11 @@ class QuietImage(galsim.image.Image):
         return "<galsim image with %s>" % self.bounds
 
 data = model.egg(trueParams)
-data[0].__class__ = QuietImage #g band image
-data[1].__class__ = QuietImage #r band image
+if DUAL_BAND:
+    data[0].__class__ = QuietImage #g band image
+    data[1].__class__ = QuietImage #r band image
+else:
+    data.__class__ = QuietImage
 
 def lnprob(theta, data, r_psf):
     if not all(theta > theta_lb) or not all(theta < theta_ub):

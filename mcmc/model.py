@@ -101,7 +101,7 @@ def egg(params, scale=None, match_image_size=None, dual_band=True, SNR=None):
             image.addNoiseSNR(galsim.GaussianNoise(rng=galsim.BaseDeviate(int(time.time()))),SNR, preserve_flux=True)
         images.append(image)
 
-    return (images[0], images[1]) if dual_band else egg
+    return (images[0], images[1]) if dual_band else images[0]
 
 
     
