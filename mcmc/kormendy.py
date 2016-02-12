@@ -2,11 +2,18 @@ import numpy as np
 import argparse
 import mcmc
 
-power = -.83
+# the Kormendy Relation
+# R  = const I^-.83
+# ==> R^-.54 = const I
+# ==> -.54 log(R) = log(I) + const
+
+sigma = .5
+
+power = -.54
 
 R = mcmc.trueParams.rb
 F = mcmc.trueParams.fd
-alpha = R/((F/(R**2))**power)
+const = power*np.log(R) - np.log(F)
 
 parser = argparse.ArgumentParser(description="apply prior")
 parser.add_argument('chain_file', type=str)
@@ -19,9 +26,8 @@ accepted = []
 for theta in chain:
     R = theta[4]
     F = theta[5]
-    I = F/(R**2)
     
-    x = R - alpha*I**power
+    x = power*np.log(R) - np.log(F) - const
     p = 1/(sigma*np.sqrt(2*np.pi)) * np.exp(-(x**2)/(2*sigma**2))
     
     if np.random.rand() < p:
