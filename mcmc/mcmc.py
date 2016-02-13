@@ -108,6 +108,7 @@ if __name__ == '__main__':
     name = "%s.%s.%s" % (args.nwalkers, args.nburnin, args.nsample)
     if args.parallel_tempered:
         name += '.pt'
+    name += ".dual" if DUAL_BAND else ".single"
     t = time.localtime()
     name = str(t.tm_mon) + "-" + str(t.tm_mday) + "." + name
 
