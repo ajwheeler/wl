@@ -8,7 +8,7 @@ import time
 import copy
 from itertools import compress
 
-DUAL_BAND = True
+DUAL_BAND = False
 
 #parameter bounds
 theta_lb = [0,0,-1,-1,0,0,-1,-1,-.2,-.2]
