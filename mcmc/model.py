@@ -15,9 +15,7 @@ class EggParams():
     g1s = 0
     g2s = 0
 
-    r_psf = .25
-
-    labels = ['rd','fd','g1d','g2d','rb','fb','g1b','g2b','g1s','g2s','r_psf']
+    labels = ['rd','fd','g1d','g2d','rb','fb','g1b','g2b','g1s','g2s']
 
     def __init__(self, **params):
         for k in params:
@@ -39,10 +37,10 @@ class EggParams():
 
 
     def __repr__(self):
-        return "Disk{r=%s, I=%s, g1=%s, g2=%s}, Bulge{r=%s, I=%s, g1=%s, g2=%s}, Shear{g1=%s, g2=%s}, r_psf=%s " \
+        return "Disk{r=%s, I=%s, g1=%s, g2=%s}, Bulge{r=%s, I=%s, g1=%s, g2=%s}, Shear{g1=%s, g2=%s}"\
             % (self.rd, self.fd, self.g1d, self.g2d, 
                self.rb, self.fb, self.g1b, self.g2b, 
-                self.g1s, self.g2s, self.r_psf)
+               self.g1s, self.g2s)
 
     def fromArray(self, array, mask=[True]*10):
         if array.shape != (mask.count(True),):
@@ -64,8 +62,9 @@ class EggParams():
         return np.array(vals)
 
 
-def egg(params, scale=None, match_image_size=None, dual_band=True, SNR=None):
+def egg(params, scale=None, match_image_size=None, dual_band=True, SNR=None, nx=None, ny=None):
     rfr = 5.0**.25
+    r_psf = .25
 
     disk = galsim.Exponential(half_light_radius=params.rd, flux=params.fd)
     disk = disk.shear(g1=params.g1d, g2=params.g2d)
@@ -92,10 +91,10 @@ def egg(params, scale=None, match_image_size=None, dual_band=True, SNR=None):
 
         #convolve with point-spread function
         big_fft_params = galsim.GSParams(maximum_fft_size=10240)
-        psf = galsim.Gaussian(sigma=params.r_psf)
+        psf = galsim.Gaussian(sigma=r_psf)
         egg = galsim.Convolution(egg, psf, gsparams=big_fft_params)
         if match_image_size == None:
-            image = egg.drawImage(scale=scale)
+            image = egg.drawImage(scale=scale, nx=nx, ny=ny)
         else:
             image = egg.drawImage(scale=match_image_size.scale, 
                                   bounds = match_image_size.bounds)

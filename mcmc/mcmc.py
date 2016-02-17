@@ -9,6 +9,7 @@ import copy
 from itertools import compress
 
 DUAL_BAND = False
+NP = 200
 
 #parameter bounds
 theta_lb = [0,0,-1,-1,0,0,-1,-1,-.2,-.2]
@@ -28,18 +29,18 @@ class QuietImage(galsim.image.Image):
     def __str__(self):
         return "<galsim image with %s>" % self.bounds
 
-data = model.egg(trueParams, dual_band=DUAL_BAND)
+data = model.egg(trueParams, dual_band=DUAL_BAND, nx=NP, ny=NP)
 if DUAL_BAND:
     data[0].__class__ = QuietImage #g band image
     data[1].__class__ = QuietImage #r band image
 else:
     data.__class__ = QuietImage
 
-def lnprob(theta, data, r_psf):
+def lnprob(theta, data):
     if not all(theta > theta_lb) or not all(theta < theta_ub):
         return -np.inf
 
-    params = model.EggParams(r_psf=r_psf)
+    params = model.EggParams()
     params = copy.copy(trueParams)
     params.fromArray(theta, mask)
 
@@ -87,11 +88,11 @@ if __name__ == '__main__':
         def logp(x):
             return 0.01
         sampler = emcee.PTSampler(ntemps, args.nwalkers, ndim, lnprob, logp, 
-                                  loglargs=[data, trueParams.r_psf], threads=args.nthreads)
+                                  loglargs=[data], threads=args.nthreads)
     else:
         theta0 = [trueParams.toArray(mask) + 1e-4*np.random.randn(ndim) for _ in range(args.nwalkers)]
         sampler = emcee.EnsembleSampler(args.nwalkers, ndim, lnprob, 
-                                        args=[data, trueParams.r_psf], threads=args.nthreads)
+                                        args=[data], threads=args.nthreads)
 
     print("Burn in...")
     pos, _, state = sampler.run_mcmc(theta0, args.nburnin)
