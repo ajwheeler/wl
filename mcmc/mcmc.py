@@ -10,6 +10,8 @@ from itertools import compress
 
 DUAL_BAND = False
 NP = 200
+SCALE = .2
+SUFFIX = "smallimage"
 
 #parameter bounds
 theta_lb = [0,0,-1,-1,0,0,-1,-1,-.2,-.2]
@@ -29,7 +31,7 @@ class QuietImage(galsim.image.Image):
     def __str__(self):
         return "<galsim image with %s>" % self.bounds
 
-data = model.egg(trueParams, dual_band=DUAL_BAND, nx=NP, ny=NP)
+data = model.egg(trueParams, dual_band=DUAL_BAND, nx=NP, ny=NP, scale=SCALE)
 if DUAL_BAND:
     data[0].__class__ = QuietImage #g band image
     data[1].__class__ = QuietImage #r band image
@@ -101,25 +103,32 @@ if __name__ == '__main__':
     print("Sampling phase...")
     sampler.run_mcmc(pos, args.nsample, rstate0=state)
 
+    #output stats
     stats =  "Mean acceptance fraction:" + str(np.mean(sampler.acceptance_fraction)) + '\n'\
              + "Autocorrelation time:" + str(sampler.get_autocorr_time())
     stats += "\ntrue params: " + str(trueParams)
     print(stats)
 
+    #construct name
     name = "%s.%s.%s" % (args.nwalkers, args.nburnin, args.nsample)
     if args.parallel_tempered:
         name += '.pt'
     name += ".dual" if DUAL_BAND else ".single"
+    if SUFFIX != None:
+        name += "." + SUFFIX
     t = time.localtime()
     name = str(t.tm_mon) + "-" + str(t.tm_mday) + "." + name
 
+    #write stats
     f = open(name+'.stats', 'w')
     f.write(stats)
     f.close()
 
+    #save chain/lnprobs
     np.save(name+".chain.npy", sampler.flatchain)
     np.save(name+".lnprob.npy", sampler.flatlnprobability)
 
+    #draw corner plot
     import drawcorner
     chain = sampler.flatchain
     if args.parallel_tempered:
