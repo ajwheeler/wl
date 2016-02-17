@@ -117,7 +117,7 @@ if __name__ == '__main__':
     f.close()
 
     np.save(name+".chain.npy", sampler.flatchain)
-    np.save(name+".lnprob.npy", sample.flatlnprobability)
+    np.save(name+".lnprob.npy", sampler.flatlnprobability)
 
     import drawcorner
     chain = sampler.flatchain
