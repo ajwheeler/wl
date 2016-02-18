@@ -67,7 +67,7 @@ def lnprob(theta, data):
         p = -.5*(np.sum(g_diff**2) + np.sum(r_diff**2))
     else:
         diff = gals.array - data.array
-        p = np.sum(diff**2)
+        p = -np.sum(diff**2)
 
     return p * 100000.0
 
