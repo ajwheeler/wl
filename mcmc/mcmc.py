@@ -81,6 +81,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     print(args)
+    print("DUAL_BAND = %s, NP = %s, SCALE = %s, SUFFIX = %s" % (DUAL_BAND, NP, SCALE, SUFFIX))
 
     ndim = mask.count(True)
     if args.parallel_tempered:
@@ -107,6 +108,7 @@ if __name__ == '__main__':
     stats =  "Mean acceptance fraction:" + str(np.mean(sampler.acceptance_fraction)) + '\n'\
              + "Autocorrelation time:" + str(sampler.get_autocorr_time())
     stats += "\ntrue params: " + str(trueParams)
+    stats += "DUAL_BAND = %s, NP = %s, SCALE = %s, SUFFIX = %s" % (DUAL_BAND, NP, SCALE, SUFFIX)
     print(stats)
 
     #construct name

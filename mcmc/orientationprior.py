@@ -8,13 +8,12 @@ args = parser.parse_args()
 
 chain = np.load(args.chain_file)
 
-accepted = []
+weights = []
 for theta in chain:
     gamma = np.sqrt(theta[2]**2  + theta[3]**2)
     if gamma > 1:
-        pass
-    if np.random.rand() < gamma:
-        accepted.append(theta)
+        weights.append(0)
+    weights.append(gamma)
 
-print(str(len(accepted)) + " accepted out of " + str(len(chain)))
-np.save(args.output_file, np.array(accepted))
+weights = np.array(weights)
+np.save(args.output_file, weights)
