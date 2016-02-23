@@ -15,7 +15,10 @@ class EggParams():
     g1s = 0
     g2s = 0
 
-    labels = ['rd','fd','g1d','g2d','rb','fb','g1b','g2b','g1s','g2s']
+    mu = 0
+
+    labels = ['rd','fd','g1d','g2d','rb','fb','g1b','g2b','g1s','g2s', 'mu']
+    nparams = len(labels)
 
     def __init__(self, **params):
         for k in params:
@@ -37,26 +40,26 @@ class EggParams():
 
 
     def __repr__(self):
-        return "Disk{r=%s, I=%s, g1=%s, g2=%s}, Bulge{r=%s, I=%s, g1=%s, g2=%s}, Shear{g1=%s, g2=%s}"\
+        return "Disk{r=%s, I=%s, g1=%s, g2=%s}, Bulge{r=%s, I=%s, g1=%s, g2=%s}, Shear{g1=%s, g2=%s, mu=%s}"\
             % (self.rd, self.fd, self.g1d, self.g2d, 
                self.rb, self.fb, self.g1b, self.g2b, 
-               self.g1s, self.g2s)
+               self.g1s, self.g2s, self.mu)
 
-    def fromArray(self, array, mask=[True]*10):
+    def fromArray(self, array, mask=[True]*nparams):
         if array.shape != (mask.count(True),):
             raise RuntimeError("parameter array should be a numpy array with shape (%s,)" 
                                % mask.count(True))
              
         j = 0
-        for i in xrange(10):
+        for i in xrange(self.nparams):
             if mask[i]:
                 self[self.labels[i]] = array[j]
                 j += 1
         
 
-    def toArray(self, mask=[True]*10):
+    def toArray(self, mask=[True]*nparams):
         vals = []
-        for i in xrange(10):
+        for i in xrange(self.nparams):
             if mask[i]:
                 vals.append(self[self.labels[i]])
         return np.array(vals)
@@ -88,6 +91,7 @@ def egg(params, scale=None, match_image_size=None, dual_band=True, SNR=None, nx=
     for egg in [green_egg, red_egg] if dual_band else [egg]:
         #apply shear  
         egg = egg.shear(g1=params.g1s, g2=params.g2s)
+        egg = egg.magnify(params.mu)
 
         #convolve with point-spread function
         big_fft_params = galsim.GSParams(maximum_fft_size=10240)

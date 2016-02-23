@@ -11,14 +11,14 @@ from itertools import compress
 DUAL_BAND = False
 NP = 200
 SCALE = .2
-SUFFIX = "smallimage"
+SUFFIX = None
+mask = [True, True, True, True, True, True, True, True, False, False, True]
 
 #parameter bounds
-theta_lb = [0,0,-1,-1,0,0,-1,-1,-.2,-.2]
-theta_ub = [8,5,1,1,7,4,1,1,.2,.2]
+theta_lb = [0,0,-1,-1,0,0,-1,-1,-.2,-.2, 1.0]
+theta_ub = [8,5, 1, 1,7,4, 1, 1, .2, .2, 2.0]
 
-trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02)
-mask = [True, True, True, True, True, True, True, True, True, True]
+trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02, mu=1.5)
 theta_lb = list(compress(theta_lb, mask))
 theta_ub = list(compress(theta_ub, mask))
 
@@ -81,7 +81,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     print(args)
-    print("DUAL_BAND = %s, NP = %s, SCALE = %s, SUFFIX = %s" % (DUAL_BAND, NP, SCALE, SUFFIX))
+    print("DUAL_BAND = %s, NP = %s, SCALE = %s, SUFFIX = %s\n mask = %s" % (DUAL_BAND, NP, SCALE, SUFFIX, mask))
 
     ndim = mask.count(True)
     if args.parallel_tempered:
@@ -108,7 +108,7 @@ if __name__ == '__main__':
     stats =  "Mean acceptance fraction:" + str(np.mean(sampler.acceptance_fraction)) + '\n'\
              + "Autocorrelation time:" + str(sampler.get_autocorr_time())
     stats += "\ntrue params: " + str(trueParams)
-    stats += "DUAL_BAND = %s, NP = %s, SCALE = %s, SUFFIX = %s" % (DUAL_BAND, NP, SCALE, SUFFIX)
+    stats += "DUAL_BAND = %s\n NP = %s\n SCALE = %s\n SUFFIX = %s\n mask = %s" % (DUAL_BAND, NP, SCALE, SUFFIX, mask)
     print(stats)
 
     #construct name
