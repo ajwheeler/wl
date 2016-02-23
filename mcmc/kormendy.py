@@ -6,6 +6,7 @@ import mcmc
 # R  = const I^-.83
 # ==> R^-.54 = const I
 # ==> -.54 log(R) = log(I) + const
+# https://ned.ipac.caltech.edu/level5/Sept01/Kormendy/frames.html [sec 8.2]
 
 sigma = .5
 

@@ -11,7 +11,7 @@ from itertools import compress
 DUAL_BAND = False
 NP = 200
 SCALE = .2
-SUFFIX = None
+SUFFIX = "9params"
 mask = [True, True, True, True, True, True, True, True, False, False, True]
 
 #parameter bounds
