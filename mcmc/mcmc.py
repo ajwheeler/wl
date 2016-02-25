@@ -15,10 +15,10 @@ SUFFIX = "9params"
 mask = [True, True, True, True, True, True, True, True, False, False, True]
 
 #parameter bounds
-theta_lb = [0,0,-1,-1,0,0,-1,-1,-.2,-.2, 1.0]
-theta_ub = [8,5, 1, 1,7,4, 1, 1, .2, .2, 2.0]
+theta_lb = [0,0,-1,-1,0,0,-1,-1,-.2,-.2, 0.8]
+theta_ub = [8,5, 1, 1,7,4, 1, 1, .2, .2, 1.2]
 
-trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02, mu=1.5)
+trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02, mu=1.02)
 theta_lb = list(compress(theta_lb, mask))
 theta_ub = list(compress(theta_ub, mask))
 
