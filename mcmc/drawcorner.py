@@ -8,7 +8,7 @@ def make_figure(samples, true_vals, weights=None, mask=[True]*model.EggParams.np
               r"$R_{bulge}$", r"$F_{bulge}$", r"$\gamma_1^{bulge}$", r"$\gamma_2^{bulge}$",
               r"$\gamma_1^{shear}$", r"$\gamma_2^{shear}$", r"$\mu$"]
     labels = list(compress(labels, mask))
-    ranges = [(0,8), (0,5), (-1,1),(-1,1),(0,7), (0,4),(-1,1),(-1,1),(-.2,.2),(-.2,.2), (1,1.2)]
+    ranges = [(0,8), (0,5), (-1,1),(-1,1),(0,7), (0,4),(-1,1),(-1,1),(-.2,.2),(-.2,.2), (.8,1.2)]
     ranges = list(compress(ranges, mask))
     figure = corner.corner(samples, labels=labels,
                            truths=true_vals,

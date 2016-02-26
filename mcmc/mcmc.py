@@ -69,7 +69,7 @@ def lnprob(theta, data):
         diff = gals.array - data.array
         p = -np.sum(diff**2)
 
-    return p * 100000.0
+    return p * 6.2e8 # S/N 50
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Sample lnprob")
