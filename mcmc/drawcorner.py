@@ -13,8 +13,8 @@ def make_figure(samples, true_vals, weights=None, mask=[True]*model.EggParams.np
     figure = corner.corner(samples, labels=labels,
                            truths=true_vals,
                            weights=weights,
-                           show_titles=True,
-                           range=ranges)
+                           show_titles=True)
+#                           range=ranges)
     
     
     return figure
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     chain = np.load(inputf)
     trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02)
     
-    mask = [True, True, True, True, True, True, True, True, False, False, True]
+    mask = [True, True, True, True, True, True, True, True, True, True, False]
 
     fig = make_figure(chain, trueParams.toArray(), weights=weights, mask=mask)
 
