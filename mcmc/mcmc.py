@@ -13,14 +13,21 @@ NP = 200
 SCALE = .2
 SUFFIX = "9params"
 mask = [True, True, True, True, True, True, True, True, False, False, True]
+SNR = 50
 
 #parameter bounds
 theta_lb = [0,0,-1,-1,0,0,-1,-1,-.2,-.2, 0.8]
 theta_ub = [8,5, 1, 1,7,4, 1, 1, .2, .2, 1.2]
 
+#true params
 trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02, mu=1.02)
+
+#remove bounds for fixed parameters
 theta_lb = list(compress(theta_lb, mask))
 theta_ub = list(compress(theta_ub, mask))
+
+#prefactor to multiply with the sum diff squared
+lnprob_prefactor = (SNR*np.pi*trueParams.rd**2)**2/(2*SCALE**4)
 
 class QuietImage(galsim.image.Image):
     """This is a hack so that the error output if emcee has an error calling
@@ -69,7 +76,7 @@ def lnprob(theta, data):
         diff = gals.array - data.array
         p = -np.sum(diff**2)
 
-    return p * 6.2e8 # S/N 50
+    return p * lnprob_prefactor
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Sample lnprob")
@@ -81,7 +88,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     print(args)
-    print("DUAL_BAND = %s, NP = %s, SCALE = %s, SUFFIX = %s\n mask = %s" % (DUAL_BAND, NP, SCALE, SUFFIX, mask))
+    print("DUAL_BAND = %s, NP = %s, SCALE = %s, SUFFIX = %s\n mask = %s" % 
+          (DUAL_BAND, NP, SCALE, SUFFIX, mask))
 
     ndim = mask.count(True)
     if args.parallel_tempered:
