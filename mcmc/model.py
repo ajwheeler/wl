@@ -66,7 +66,6 @@ class EggParams():
 
 
 def egg(params, scale=None, match_image_size=None, dual_band=True, SNR=None, nx=None, ny=None):
-    rfr = 5.0**.25
     r_psf = .25
 
     disk = galsim.Exponential(half_light_radius=params.rd, flux=params.fd)
@@ -78,12 +77,12 @@ def egg(params, scale=None, match_image_size=None, dual_band=True, SNR=None, nx=
     bulge = bulge.withFlux(params.fb)
 
     if dual_band:
+        rfr = 5.0**.25
         green_egg = (disk*rfr + bulge/rfr)
         red_egg = (disk/rfr + bulge*rfr)
 
-        N = (params.fd + params.fb)/(green_egg.flux + red_egg.flux)
-        green_egg  = green_egg.withFlux(green_egg.flux * N)
-        red_egg  = red_egg.withFlux(red_egg.flux * N)
+        green_egg  = green_egg.withFlux(params.flux)
+        red_egg  = red_egg.withFlux(params.flux)
     else:
         egg = disk + bulge
 

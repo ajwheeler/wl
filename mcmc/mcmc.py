@@ -71,7 +71,7 @@ def lnprob(theta, data):
     if DUAL_BAND:
         g_diff = gals[0].array - data[0].array
         r_diff = gals[1].array - data[1].array
-        p = -.5*(np.sum(g_diff**2) + np.sum(r_diff**2))
+        p = -(np.sum(g_diff**2) + np.sum(r_diff**2))
     else:
         diff = gals.array - data.array
         p = -np.sum(diff**2)
