@@ -11,8 +11,8 @@ from itertools import compress
 DUAL_BAND = False
 NP = 200
 SCALE = .2
-SUFFIX = "9params"
-mask = [True, True, True, True, True, True, True, True, False, False, True]
+SUFFIX = None
+mask = [True, True, True, True, True, True, True, True, True, True, True]
 SNR = 50
 
 #parameter bounds
@@ -78,45 +78,55 @@ def lnprob(theta, data):
 
     return p * lnprob_prefactor
 
+def run_chain(trueParams, nwalkers, nburnin, nsample, nthreads=1,
+              mask=True*model.EggParams.nparams, parallel_tempered=False):
+    ndim = mask.count(True)
+    if parallel_tempered:
+        ntemps = 20
+        theta0 = [[trueParams.toArray(mask) + 1e-4*np.random.randn(ndim) \
+                   for _ in range(nwalkers)] for _ in range(ntemps)]
+        #flat prior
+        def logp(x):
+            return 0.01
+        sampler = emcee.PTSampler(ntemps, nwalkers, ndim, lnprob, logp, 
+                                  loglargs=[data], threads=nthreads)
+    else:
+        theta0 = [trueParams.toArray(mask) + 1e-4*np.random.randn(ndim) for _ in range(nwalkers)]
+        sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, 
+                                        args=[data], threads=nthreads)
+
+    pos, _, state = sampler.run_mcmc(theta0, nburnin)
+    sampler.reset()
+    sampler.run_mcmc(pos, nsample, rstate0=state)
+
+    #collect stats
+    stats =  "Mean acceptance fraction:" + str(np.mean(sampler.acceptance_fraction)) + '\n'\
+             + "Autocorrelation time:" + str(sampler.get_autocorr_time())
+    stats += "\ntrue params: " + str(trueParams)
+
+    return sampler, stats
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Sample lnprob")
     parser.add_argument('-n', '--nthreads', default=1, type=int)
-    parser.add_argument('-w', '--nwalkers', default=100, type=int)
-    parser.add_argument('-b', '--nburnin', default=500, type=int)
-    parser.add_argument('-s', '--nsample', default=500, type=int)
+    parser.add_argument('-w', '--nwalkers', default=30, type=int)
+    parser.add_argument('-b', '--nburnin', default=10, type=int)
+    parser.add_argument('-s', '--nsample', default=10, type=int)
     parser.add_argument('-p', '--parallel-tempered', action='store_true')
+    parser.add_argument('-d', '--draw-plot', action='store_true')
     args = parser.parse_args()
 
     print(args)
     print("DUAL_BAND = %s, NP = %s, SCALE = %s, SUFFIX = %s\n mask = %s" % 
           (DUAL_BAND, NP, SCALE, SUFFIX, mask))
 
-    ndim = mask.count(True)
-    if args.parallel_tempered:
-        ntemps = 20
-        theta0 = [[trueParams.toArray(mask) + 1e-4*np.random.randn(ndim) \
-                   for _ in range(args.nwalkers)] for _ in range(ntemps)]
-        def logp(x):
-            return 0.01
-        sampler = emcee.PTSampler(ntemps, args.nwalkers, ndim, lnprob, logp, 
-                                  loglargs=[data], threads=args.nthreads)
-    else:
-        theta0 = [trueParams.toArray(mask) + 1e-4*np.random.randn(ndim) for _ in range(args.nwalkers)]
-        sampler = emcee.EnsembleSampler(args.nwalkers, ndim, lnprob, 
-                                        args=[data], threads=args.nthreads)
+    sampler, stats = run_chain(trueParams, args.nwalkers, args.nburnin, 
+                               args.nsample, args.nthreads, mask, args.parallel_tempered)
+    stats += "\nDUAL_BAND = %s\nNP = %s\nSCALE = %s\nSUFFIX = %s\nmask = %s"\
+             % (DUAL_BAND, NP, SCALE, SUFFIX, mask)
 
-    print("Burn in...")
-    pos, _, state = sampler.run_mcmc(theta0, args.nburnin)
-    sampler.reset()
 
-    print("Sampling phase...")
-    sampler.run_mcmc(pos, args.nsample, rstate0=state)
-
-    #output stats
-    stats =  "Mean acceptance fraction:" + str(np.mean(sampler.acceptance_fraction)) + '\n'\
-             + "Autocorrelation time:" + str(sampler.get_autocorr_time())
-    stats += "\ntrue params: " + str(trueParams)
-    stats += "DUAL_BAND = %s\n NP = %s\n SCALE = %s\n SUFFIX = %s\n mask = %s" % (DUAL_BAND, NP, SCALE, SUFFIX, mask)
+    print("##### stats #####")
     print(stats)
 
     #construct name
@@ -139,9 +149,10 @@ if __name__ == '__main__':
     np.save(name+".lnprob.npy", sampler.flatlnprobability)
 
     #draw corner plot
-    import drawcorner
-    chain = sampler.flatchain
-    if args.parallel_tempered:
-        chain = chain.reshape(ntemps*args.nwalkers*args.nsample, ndim)
-    fig = drawcorner.make_figure(chain, trueParams.toArray(mask), mask=mask)
-    fig.savefig(name + ".png")
+    if args.draw_plot:
+        import drawcorner
+        chain = sampler.flatchain
+        if args.parallel_tempered:
+            chain = chain.reshape(ntemps*args.nwalkers*args.nsample, ndim)
+        fig = drawcorner.make_figure(chain, trueParams.toArray(mask), mask=mask)
+        fig.savefig(name + ".png")
