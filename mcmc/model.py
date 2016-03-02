@@ -15,7 +15,7 @@ class EggParams():
     g1s = 0
     g2s = 0
 
-    mu = 0
+    mu = 1
 
     labels = ['rd','fd','g1d','g2d','rb','fb','g1b','g2b','g1s','g2s', 'mu']
     nparams = len(labels)
@@ -65,7 +65,7 @@ class EggParams():
         return np.array(vals)
 
 
-def egg(params, scale=None, match_image_size=None, dual_band=True, SNR=None, nx=None, ny=None):
+def egg(params, scale=None, match_image_size=None, dual_band=True, nx=None, ny=None):
     r_psf = .25
 
     disk = galsim.Exponential(half_light_radius=params.rd, flux=params.fd)
@@ -101,10 +101,6 @@ def egg(params, scale=None, match_image_size=None, dual_band=True, SNR=None, nx=
         else:
             image = egg.drawImage(scale=match_image_size.scale, 
                                   bounds = match_image_size.bounds)
-
-        if SNR != None:
-            image.addNoiseSNR(galsim.GaussianNoise(rng=galsim.BaseDeviate(int(time.time()))),
-                              SNR, preserve_flux=True)
         images.append(image)
 
     return (images[0], images[1]) if dual_band else images[0]

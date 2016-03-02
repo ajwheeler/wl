@@ -27,7 +27,9 @@ theta_lb = list(compress(theta_lb, mask))
 theta_ub = list(compress(theta_ub, mask))
 
 #prefactor to multiply with the sum diff squared
-lnprob_prefactor = (SNR*np.pi*trueParams.rd**2)**2/(2*SCALE**4)
+#lnprob_prefactor = (SNR*np.pi*trueParams.rd**2)**2/(2*SCALE**4)
+#pixel_noise  = SCALE**2 / (np.pi * trueParams.rd**2 * SNR)
+#print(pixel_noise)
 
 class QuietImage(galsim.image.Image):
     """This is a hack so that the error output if emcee has an error calling
@@ -39,6 +41,8 @@ class QuietImage(galsim.image.Image):
         return "<galsim image with %s>" % self.bounds
 
 data = model.egg(trueParams, dual_band=DUAL_BAND, nx=NP, ny=NP, scale=SCALE)
+pixel_variance = data.addNoiseSNR(galsim.GaussianNoise(), SNR, preserve_flux=True)
+
 if DUAL_BAND:
     data[0].__class__ = QuietImage #g band image
     data[1].__class__ = QuietImage #r band image
@@ -76,7 +80,7 @@ def lnprob(theta, data):
         diff = gals.array - data.array
         p = -np.sum(diff**2)
 
-    return p * lnprob_prefactor
+    return p * .5/pixel_variance
 
 def run_chain(trueParams, nwalkers, nburnin, nsample, nthreads=1,
               mask=True*model.EggParams.nparams, parallel_tempered=False):
@@ -117,13 +121,13 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     print(args)
-    print("DUAL_BAND = %s, NP = %s, SCALE = %s, SUFFIX = %s\n mask = %s" % 
-          (DUAL_BAND, NP, SCALE, SUFFIX, mask))
+    print("DUAL_BAND = %s, NP = %s, SCALE = %s, SUFFIX = %s, SNR=%s\n mask = %s" % 
+          (DUAL_BAND, NP, SCALE, SUFFIX, SNR, mask))
 
     sampler, stats = run_chain(trueParams, args.nwalkers, args.nburnin, 
                                args.nsample, args.nthreads, mask, args.parallel_tempered)
-    stats += "\nDUAL_BAND = %s\nNP = %s\nSCALE = %s\nSUFFIX = %s\nmask = %s"\
-             % (DUAL_BAND, NP, SCALE, SUFFIX, mask)
+    stats += "\nDUAL_BAND = %s\nNP = %s\nSCALE = %s\nSUFFIX = %sSNR = %s\n\nmask = %s"\
+             % (DUAL_BAND, NP, SCALE, SUFFIX, SNR, mask)
 
 
     print("##### stats #####")
