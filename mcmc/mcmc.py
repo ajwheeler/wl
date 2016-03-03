@@ -8,29 +8,6 @@ import time
 import copy
 from itertools import compress
 
-DUAL_BAND = False
-NP = 200
-SCALE = .2
-SUFFIX = None
-mask = [True, True, True, True, True, True, True, True, True, True, True]
-SNR = 50
-
-#parameter bounds
-theta_lb = [0,0,-1,-1,0,0,-1,-1,-.2,-.2, 0.8]
-theta_ub = [8,5, 1, 1,7,4, 1, 1, .2, .2, 1.2]
-
-#true params
-trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02, mu=1.02)
-
-#remove bounds for fixed parameters
-theta_lb = list(compress(theta_lb, mask))
-theta_ub = list(compress(theta_ub, mask))
-
-#prefactor to multiply with the sum diff squared
-#lnprob_prefactor = (SNR*np.pi*trueParams.rd**2)**2/(2*SCALE**4)
-#pixel_noise  = SCALE**2 / (np.pi * trueParams.rd**2 * SNR)
-#print(pixel_noise)
-
 class QuietImage(galsim.image.Image):
     """This is a hack so that the error output if emcee has an error calling
     lnprob the output will not be insanely long"""
@@ -40,16 +17,13 @@ class QuietImage(galsim.image.Image):
     def __str__(self):
         return "<galsim image with %s>" % self.bounds
 
-data = model.egg(trueParams, dual_band=DUAL_BAND, nx=NP, ny=NP, scale=SCALE)
-pixel_variance = data.addNoiseSNR(galsim.GaussianNoise(), SNR, preserve_flux=True)
-
-if DUAL_BAND:
-    data[0].__class__ = QuietImage #g band image
-    data[1].__class__ = QuietImage #r band image
-else:
-    data.__class__ = QuietImage
-
-def lnprob(theta, data):
+def lnprob(theta, data, dual_band, pixel_var):
+    #parameter bounds
+    theta_lb = [0,0,-1,-1,0,0,-1,-1,-.2,-.2, 0.8]
+    theta_ub = [8,5, 1, 1,7,4, 1, 1, .2, .2, 1.2]    
+    #remove bounds for fixed parameters
+    theta_lb = list(compress(theta_lb, mask))
+    theta_ub = list(compress(theta_ub, mask))
     if not all(theta > theta_lb) or not all(theta < theta_ub):
         return -np.inf
 
@@ -65,14 +39,14 @@ def lnprob(theta, data):
     try:
         #a single imgage (i.e. not a pair of g/r band images
         #for the model to size-match
-        single_image = data[0] if DUAL_BAND else data
-        gals = model.egg(params, match_image_size=single_image, dual_band=DUAL_BAND)
+        single_image = data[0] if dual_band else data
+        gals = model.egg(params, match_image_size=single_image, dual_band=dual_band)
     except RuntimeError:
         print("error drawing galaxy with these parameters:")
         print(params)
         return -np.inf
 
-    if DUAL_BAND:
+    if dual_band:
         g_diff = gals[0].array - data[0].array
         r_diff = gals[1].array - data[1].array
         p = -(np.sum(g_diff**2) + np.sum(r_diff**2))
@@ -80,10 +54,34 @@ def lnprob(theta, data):
         diff = gals.array - data.array
         p = -np.sum(diff**2)
 
-    return p * .5/pixel_variance
+    return p * .5/pixel_var
 
 def run_chain(trueParams, nwalkers, nburnin, nsample, nthreads=1,
-              mask=True*model.EggParams.nparams, parallel_tempered=False):
+              mask=True*model.EggParams.nparams, parallel_tempered=False,
+              dual_band=False, NP=200, scale=.2, SNR=50):
+
+    data = model.egg(trueParams, dual_band=args.dual_band, nx=NP, ny=NP, scale=scale)
+    
+    #apply noise and make data a QuietImage
+    pixel_noise = (scale)**2/(np.pi * trueParams.rd**2 * SNR)
+    if dual_band:
+        print(np.sum(data[0].array))
+        print(np.sum(data[1].array))
+        
+        for i in [0,1]:
+            bd = galsim.BaseDeviate(int(time.time()))
+            data[i].addNoiseSNR(galsim.GaussianNoise(bd, pixel_noise))
+
+        print("WARNING: SNR may be incorrect")
+        
+        data[0].__class__ = QuietImage #g band image
+        data[1].__class__ = QuietImage #r band image
+    else:
+        bd = galsim.BaseDeviate(int(time.time()))
+        data.addNoise(galsim.GaussianNoise(bd, pixel_noise))
+        data.__class__ = QuietImage
+
+
     ndim = mask.count(True)
     if parallel_tempered:
         ntemps = 20
@@ -93,11 +91,11 @@ def run_chain(trueParams, nwalkers, nburnin, nsample, nthreads=1,
         def logp(x):
             return 0.01
         sampler = emcee.PTSampler(ntemps, nwalkers, ndim, lnprob, logp, 
-                                  loglargs=[data], threads=nthreads)
+                                  loglargs=[data, dual_band, pixel_noise**2], threads=nthreads)
     else:
         theta0 = [trueParams.toArray(mask) + 1e-4*np.random.randn(ndim) for _ in range(nwalkers)]
         sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, 
-                                        args=[data], threads=nthreads)
+                                        args=[data, dual_band, pixel_noise**2], threads=nthreads)
 
     pos, _, state = sampler.run_mcmc(theta0, nburnin)
     sampler.reset()
@@ -118,16 +116,24 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--nsample', default=10, type=int)
     parser.add_argument('-p', '--parallel-tempered', action='store_true')
     parser.add_argument('-d', '--draw-plot', action='store_true')
+    parser.add_argument('-2', '--dual-band', action='store_true')
+    parser.add_argument('--snr', default=50, type=int)
+    parser.add_argument('--suffix', default=None, type=str)
     args = parser.parse_args()
+    for arg in vars(args):
+        print(arg, "=", getattr(args, arg))
+    
+        NP = 200
+    SCALE = .2
+    mask = [True]*model.EggParams.nparams
 
-    print(args)
-    print("DUAL_BAND = %s, NP = %s, SCALE = %s, SUFFIX = %s, SNR=%s\n mask = %s" % 
-          (DUAL_BAND, NP, SCALE, SUFFIX, SNR, mask))
+    #true params
+    trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02, mu=1.02)
 
     sampler, stats = run_chain(trueParams, args.nwalkers, args.nburnin, 
-                               args.nsample, args.nthreads, mask, args.parallel_tempered)
-    stats += "\nDUAL_BAND = %s\nNP = %s\nSCALE = %s\nSUFFIX = %sSNR = %s\n\nmask = %s"\
-             % (DUAL_BAND, NP, SCALE, SUFFIX, SNR, mask)
+                               args.nsample, args.nthreads, mask, args.parallel_tempered,
+                               NP=NP, scale=SCALE, dual_band=args.dual_band)
+    stats += "mask = %s" % mask
 
 
     print("##### stats #####")
@@ -137,9 +143,9 @@ if __name__ == '__main__':
     name = "%s.%s.%s" % (args.nwalkers, args.nburnin, args.nsample)
     if args.parallel_tempered:
         name += '.pt'
-    name += ".dual" if DUAL_BAND else ".single"
-    if SUFFIX != None:
-        name += "." + SUFFIX
+    name += ".dual" if args.dual_band else ".single"
+    if args.suffix != None:
+        name += "." + args.suffix
     t = time.localtime()
     name = str(t.tm_mon) + "-" + str(t.tm_mday) + "." + name
 

@@ -39,7 +39,7 @@ if __name__ == '__main__':
         weights = None
 
     chain = np.load(inputf)
-    trueTheta = mcmc.trueParams.toArray()
+    trueTheta = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02, mu=1.02).toArray()
     print(trueTheta)
 
     mask = [True, True, True, True, True, True, True, True, True, True, True]
