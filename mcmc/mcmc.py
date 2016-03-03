@@ -70,7 +70,7 @@ def run_chain(trueParams, nwalkers, nburnin, nsample, nthreads=1,
         
         for i in [0,1]:
             bd = galsim.BaseDeviate(int(time.time()))
-            data[i].addNoiseSNR(galsim.GaussianNoise(bd, pixel_noise))
+            data[i].addNoise(galsim.GaussianNoise(bd, pixel_noise))
 
         print("WARNING: SNR may be incorrect")
         
