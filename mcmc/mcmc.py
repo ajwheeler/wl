@@ -135,7 +135,7 @@ if __name__ == '__main__':
     for arg in vars(args):
         print(arg, "=", getattr(args, arg))
     
-        NP = 200
+    NP = 200
     SCALE = .2
     #mask = [True]*model.EggParams.nparams
     mask = [False]*11

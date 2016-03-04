@@ -13,8 +13,11 @@ def calculate_priors(input_file):
 
     power = -.54
 
-    R = mcmc.trueParams.rb
-    F = mcmc.trueParams.fd
+    #R = mcmc.trueParams.rb
+    #F = mcmc.trueParams.fd
+    R = 1
+    F = .3
+
     const = power*np.log(R) - np.log(F)
 
     chain = np.load(args.chain_file)
