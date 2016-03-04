@@ -40,7 +40,7 @@ class EggParams():
 
 
     def __repr__(self):
-        return "Disk{r=%s, I=%s, g1=%s, g2=%s}, Bulge{r=%s, I=%s, g1=%s, g2=%s}, Shear{g1=%s, g2=%s, mu=%s}"\
+        return "Disk{r=%s, I=%s, g1=%s, g2=%s}, Bulge{r=%s, I=%s, g1=%s, g2=%s}, Lensing{g1=%s, g2=%s, mu=%s}"\
             % (self.rd, self.fd, self.g1d, self.g2d, 
                self.rb, self.fb, self.g1b, self.g2b, 
                self.g1s, self.g2s, self.mu)

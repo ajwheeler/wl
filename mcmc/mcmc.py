@@ -6,6 +6,7 @@ import galsim
 import argparse
 import time
 import copy
+import pickle
 from itertools import compress
 
 class QuietImage(galsim.image.Image):
@@ -102,9 +103,20 @@ def run_chain(trueParams, nwalkers, nburnin, nsample, nthreads=1,
     sampler.run_mcmc(pos, nsample, rstate0=state)
 
     #collect stats
-    stats =  "Mean acceptance fraction:" + str(np.mean(sampler.acceptance_fraction)) + '\n'\
-             + "Autocorrelation time:" + str(sampler.get_autocorr_time())
-    stats += "\ntrue params: " + str(trueParams)
+    stats = {}
+    stats['acceptance_fraction'] = np.mean(sampler.acceptance_fraction)
+    stats['autocorrelation_time'] = sampler.get_autocorr_time()
+    stats['fiducial_params'] = trueParams
+    stats["mask"] = mask
+    stats['nburnin'] = nburnin
+    stats['nwalkers'] = nwalkers
+    stats['nsample'] = nsample
+    stats['nthreads'] = nthreads
+    stats['parallel_tempered'] = parallel_tempered
+    stats['dual_band'] = dual_band
+    stats['NP'] = NP
+    stats['SNR'] = SNR
+    stats['scale'] = scale
 
     return sampler, stats
 
@@ -133,10 +145,9 @@ if __name__ == '__main__':
     sampler, stats = run_chain(trueParams, args.nwalkers, args.nburnin, 
                                args.nsample, args.nthreads, mask, args.parallel_tempered,
                                NP=NP, scale=SCALE, dual_band=args.dual_band)
-    stats += "mask = %s" % mask
-
-
-    print("##### stats #####")
+    print()
+    print("chain finished!")
+    print()
     print(stats)
 
     #construct name
@@ -150,9 +161,8 @@ if __name__ == '__main__':
     name = str(t.tm_mon) + "-" + str(t.tm_mday) + "." + name
 
     #write stats
-    f = open(name+'.stats', 'w')
-    f.write(stats)
-    f.close()
+    with open(name+'.stats.p', 'wb') as f:
+        pickle.dump(stats,f)
 
     #save chain/lnprobs
     np.save(name+".chain.npy", sampler.flatchain)
