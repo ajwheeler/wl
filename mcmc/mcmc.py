@@ -137,7 +137,9 @@ if __name__ == '__main__':
     
         NP = 200
     SCALE = .2
-    mask = [True]*model.EggParams.nparams
+    #mask = [True]*model.EggParams.nparams
+    mask = [False]*11
+    mask[5] = True
 
     #true params
     trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02, mu=1.02)
@@ -175,4 +177,5 @@ if __name__ == '__main__':
         if args.parallel_tempered:
             chain = chain.reshape(ntemps*args.nwalkers*args.nsample, ndim)
         fig = drawcorner.make_figure(chain, trueParams.toArray(mask), mask=mask)
+        print("writeing plot to " + name + ".png")
         fig.savefig(name + ".png")
