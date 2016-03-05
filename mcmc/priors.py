@@ -8,7 +8,9 @@ import mcmc
 # ==> -.54 log(R) = log(I) + const
 # https://ned.ipac.caltech.edu/level5/Sept01/Kormendy/frames.html [sec 8.2]
 
-def calculate_priors(input_file):
+priors = ["kormendy", "orientation"]
+
+def calculate_priors(chain):
     sigma = .5
 
     power = -.54
@@ -20,8 +22,6 @@ def calculate_priors(input_file):
 
     const = power*np.log(R) - np.log(F)
 
-    chain = np.load(args.chain_file)
-    priors = ["kormendy", "orientation"]
     weights = {}
     for l in priors:
         weights[l] = np.empty(len(chain))
@@ -41,17 +41,20 @@ def calculate_priors(input_file):
             weights["orientation"][i] = 0
         weights["orientation"][i] = gamma
 
-
-    prefix = args.chain_file[:-10]
-    for l in priors:
-        suffix = "." + l + ".npy"
-        print("writing to " + prefix + suffix)
-        np.save(prefix + suffix, weights[l])
-
+        return weights
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="apply prior")
     parser.add_argument('chain_file', type=str)
     args = parser.parse_args()
 
-    calculate_priors(args.chain_file)
+    chain = np.load(args.chain_file)
+
+    weights = calculate_priors(chain)
+    prefix = args.chain_file[:-10]
+
+    for l in priors:
+        suffix = "." + l + ".npy"
+        print("writing to " + prefix + suffix)
+        np.save(prefix + suffix, weights[l])
+        

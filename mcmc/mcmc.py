@@ -18,7 +18,7 @@ class QuietImage(galsim.image.Image):
     def __str__(self):
         return "<galsim image with %s>" % self.bounds
 
-def lnprob(theta, data, dual_band, pixel_var):
+def lnprob(theta, data, dual_band, pixel_var, mask, trueParams):
     #parameter bounds
     theta_lb = [0,0,-1,-1,0,0,-1,-1,-.2,-.2, 0.8]
     theta_ub = [8,5, 1, 1,7,4, 1, 1, .2, .2, 1.2]    
@@ -61,14 +61,11 @@ def run_chain(trueParams, nwalkers, nburnin, nsample, nthreads=1,
               mask=True*model.EggParams.nparams, parallel_tempered=False,
               dual_band=False, NP=200, scale=.2, SNR=50):
 
-    data = model.egg(trueParams, dual_band=args.dual_band, nx=NP, ny=NP, scale=scale)
+    data = model.egg(trueParams, dual_band=dual_band, nx=NP, ny=NP, scale=scale)
     
     #apply noise and make data a QuietImage
     pixel_noise = (scale)**2/(np.pi * trueParams.rd**2 * SNR)
     if dual_band:
-        print(np.sum(data[0].array))
-        print(np.sum(data[1].array))
-        
         for i in [0,1]:
             bd = galsim.BaseDeviate(int(time.time()))
             data[i].addNoise(galsim.GaussianNoise(bd, pixel_noise))
@@ -92,11 +89,13 @@ def run_chain(trueParams, nwalkers, nburnin, nsample, nthreads=1,
         def logp(x):
             return 0.01
         sampler = emcee.PTSampler(ntemps, nwalkers, ndim, lnprob, logp, 
-                                  loglargs=[data, dual_band, pixel_noise**2], threads=nthreads)
+                                  loglargs=[data, dual_band, pixel_noise**2, mask, trueParams],
+                                  threads=nthreads)
     else:
         theta0 = [trueParams.toArray(mask) + 1e-4*np.random.randn(ndim) for _ in range(nwalkers)]
         sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, 
-                                        args=[data, dual_band, pixel_noise**2], threads=nthreads)
+                                        args=[data, dual_band, pixel_noise**2, mask, trueParams], 
+                                        threads=nthreads)
 
     pos, _, state = sampler.run_mcmc(theta0, nburnin)
     sampler.reset()
@@ -117,6 +116,7 @@ def run_chain(trueParams, nwalkers, nburnin, nsample, nthreads=1,
     stats['NP'] = NP
     stats['SNR'] = SNR
     stats['scale'] = scale
+    stats['time'] = time.localtime()
 
     return sampler, stats
 
