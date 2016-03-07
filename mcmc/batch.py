@@ -12,18 +12,17 @@ scale = .2
 
 mask = [True] * model.EggParams.nparams
 
-#nwalkers = 800
-#nburnin = 500
-#nsample = 1000
+nwalkers = 800
+nburnin = 500
+nsample = 1000
 
-nwalkers = 30
-nburnin = 3
-nsample = 3
+#nwalkers = 30
+#nburnin = 3
+#nsample = 3
 
 nthreads = 16 if "cosmos5" in platform.node() else 1
 
-thetas = [model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02, mu=1.02), 
-          model.EggParams()]
+thetas = [model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02, mu=1.02)]
 print("Thetas generated")
 
 for i in xrange(len(thetas)):
