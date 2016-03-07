@@ -67,16 +67,17 @@ def run_chain(trueParams, nwalkers, nburnin, nsample, nthreads=1,
     pixel_noise = (scale)**2/(np.pi * trueParams.rd**2 * SNR)
     if dual_band:
         for i in [0,1]:
-            bd = galsim.BaseDeviate(int(time.time()))
-            data[i].addNoise(galsim.GaussianNoise(bd, pixel_noise))
+            #bd = galsim.BaseDeviate(int(time.time()))
+            data[i].addNoiseSNR(galsim.GaussianNoise(),SNR,preserve_flux=True)
 
         print("WARNING: SNR may be incorrect")
         
         data[0].__class__ = QuietImage #g band image
         data[1].__class__ = QuietImage #r band image
     else:
-        bd = galsim.BaseDeviate(int(time.time()))
-        data.addNoise(galsim.GaussianNoise(bd, pixel_noise))
+        #bd = galsim.BaseDeviate(int(time.time()))
+        #data.addNoise(galsim.GaussianNoise(bd, pixel_noise))
+        data.addNoiseSNR(galsim.GaussianNoise(),SNR,preserve_flux=True)
         data.__class__ = QuietImage
 
 
