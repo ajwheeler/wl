@@ -84,7 +84,7 @@ def run_chain(trueParams, nwalkers, nburnin, nsample, nthreads=1,
     ndim = mask.count(True)
     if parallel_tempered:
         ntemps = 20
-        theta0 = [[trueParams.toArray(mask) + 1e-4*np.random.randn(ndim) \
+        theta0 = [[model.EggParams().toArray(mask) + 1e-4*np.random.randn(ndim) \
                    for _ in range(nwalkers)] for _ in range(ntemps)]
         #flat prior
         def logp(x):
@@ -93,7 +93,8 @@ def run_chain(trueParams, nwalkers, nburnin, nsample, nthreads=1,
                                   loglargs=[data, dual_band, pixel_noise**2, mask, trueParams],
                                   threads=nthreads)
     else:
-        theta0 = [trueParams.toArray(mask) + 1e-4*np.random.randn(ndim) for _ in range(nwalkers)]
+        theta0 = [model.EggParams().toArray(mask) + 1e-4*np.random.randn(ndim)\
+                  for _ in range(nwalkers)]
         sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, 
                                         args=[data, dual_band, pixel_noise**2, mask, trueParams], 
                                         threads=nthreads)
