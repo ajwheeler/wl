@@ -12,7 +12,7 @@ scale = .2
 
 mask = [True] * model.EggParams.nparams
 
-nwalkers = 800
+nwalkers = 1200
 nburnin = 500
 nsample = 1000
 

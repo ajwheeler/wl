@@ -41,7 +41,7 @@ def calculate_priors(chain):
             weights["orientation"][i] = 0
         weights["orientation"][i] = gamma
 
-        return weights
+    return weights
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="apply prior")

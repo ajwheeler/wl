@@ -8,6 +8,7 @@ def make_figure(samples, true_vals, weights=None, mask=[True]*model.EggParams.np
     labels = [r"$R_{disk}$", r"$F_{disk}$", r"$\gamma_1^{disk}$", r"$\gamma_2^{disk}$",
               r"$R_{bulge}$", r"$F_{bulge}$", r"$\gamma_1^{bulge}$", r"$\gamma_2^{bulge}$",
               r"$\gamma_1^{shear}$", r"$\gamma_2^{shear}$", r"$\mu$"]
+    labels = ["(%s) " % v + l for (l,v) in zip(labels, true_vals)]
     labels = list(compress(labels, mask))
 
     if enforce_ranges:
