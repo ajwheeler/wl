@@ -12,7 +12,7 @@ scale = .2
 
 mask = [True] * model.EggParams.nparams
 
-nwalkers = 2000
+nwalkers = 1000
 nburnin = 500
 nsample = 1000
 
@@ -30,28 +30,34 @@ for i in xrange(len(thetas)):
 print("dirs created")
 
 for i,theta in enumerate(thetas):
-    #run single band chain
-    sampler_s, stats_s = mcmc.run_chain(theta, nwalkers, nburnin, nsample, 
-                                        nthreads=nthreads, mask=mask)
-    with open(str(i) + '/single.stats.p', 'wb') as f:
-        pickle.dump(stats_s,f)
-    np.save(str(i) + "/single.chain.npy", sampler_s.flatchain)
-    np.save(str(i) + "/single.lnprob.npy", sampler_s.flatlnprobability)
+    mag_mask = [True]*11
+    mag_mask[-2] = False
+    mag_mask[-3] = False
 
-    #calculate single band priors
-    weights = priors.calculate_priors(sampler_s.flatchain)
-    for l, ws in weights.iteritems():
-        np.save(str(i) + '/single.' + l + '.npy', ws)
+    shear_mask = [True]*10 + [False]
+    for l,m in [("shear", shear_mask), ("mag", mag_mask)]:
+        #run single band chain
+        sampler_s, stats_s = mcmc.run_chain(theta, nwalkers, nburnin, nsample, 
+                                            nthreads=nthreads, mask=m)
+        with open(str(i) + '/' + l + '.single.stats.p', 'wb') as f:
+            pickle.dump(stats_s,f)
+        np.save(str(i) + '/' + l + '.single.chain.npy', sampler_s.flatchain)
+        np.save(str(i) + '/' + l + '.single.lnprob.npy', sampler_s.flatlnprobability)
 
-    #run dual-band chain
-    sampler_d, stats_d = mcmc.run_chain(theta, nwalkers, nburnin, nsample, 
-                                        nthreads=nthreads, mask=mask, dual_band=True)
-    with open(str(i) + '/double.stats.p', 'wb') as f:
-        pickle.dump(stats_d,f)
-    np.save(str(i) + "/double.chain.npy", sampler_d.flatchain)
-    np.save(str(i) + "/double.lnprob.npy", sampler_d.flatlnprobability)
-  
-    #calculate dual-band priors
-    weights = priors.calculate_priors(sampler_d.flatchain)
-    for l, ws in weights.iteritems():
-        np.save(str(i) + '/double.' + l + '.npy', ws)
+        #calculate single band priors
+        weights = priors.calculate_priors(sampler_s.flatchain)
+        for p, ws in weights.iteritems():
+            np.save(str(i) + '/' + l + '.single.' + p + '.npy', ws)
+
+        #run dual-band chain
+        sampler_d, stats_d = mcmc.run_chain(theta, nwalkers, nburnin, nsample, 
+                                            nthreads=nthreads, mask=m, dual_band=True)
+        with open(str(i) + '/' + l + '.double.stats.p', 'wb') as f:
+            pickle.dump(stats_d,f)
+        np.save(str(i) + '/' + l + '.double.chain.npy', sampler_d.flatchain)
+        np.save(str(i) + '/' + l + '.double.lnprob.npy', sampler_d.flatlnprobability)
+
+        #calculate dual-band priors
+        weights = priors.calculate_priors(sampler_d.flatchain)
+        for p, ws in weights.iteritems():
+            np.save(str(i) + '/' + l + '.double.' + p + '.npy', ws)

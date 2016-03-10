@@ -8,14 +8,14 @@ def make_figure(samples, true_vals, weights=None, mask=[True]*model.EggParams.np
     labels = [r"$R_{disk}$", r"$F_{disk}$", r"$\gamma_1^{disk}$", r"$\gamma_2^{disk}$",
               r"$R_{bulge}$", r"$F_{bulge}$", r"$\gamma_1^{bulge}$", r"$\gamma_2^{bulge}$",
               r"$\gamma_1^{shear}$", r"$\gamma_2^{shear}$", r"$\mu$"]
-    labels = ["(%s) " % v + l for (l,v) in zip(labels, true_vals)]
-    labels = list(compress(labels, mask))
+    labels = ["(%s) " % v + l for (l,v) in zip(compress(labels,mask), true_vals)]
 
     if enforce_ranges:
         ranges = [(0,8), (0,5), (-1,1),(-1,1),(0,7), (0,4),(-1,1),(-1,1),(-.2,.2),(-.2,.2), (.8,1.2)]
         ranges = list(compress(ranges, mask))        
     else:
         ranges = None
+
     figure = corner.corner(samples, labels=labels,
                            truths=true_vals,
                            weights=weights,
