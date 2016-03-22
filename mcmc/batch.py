@@ -6,13 +6,13 @@ import pickle
 import numpy as np
 import priors
 
-SNR = 50
+SNR = 100
 NP = 200
 scale = .2
 
 mask = [True] * model.EggParams.nparams
 
-nwalkers = 1000
+nwalkers = 500
 nburnin = 500
 nsample = 1000
 
