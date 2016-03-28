@@ -139,9 +139,10 @@ if __name__ == '__main__':
     
     NP = 200
     SCALE = .2
-    #mask = [True]*model.EggParams.nparams
-    mask = [False]*11
-    mask[5] = True
+    mask = [True]*model.EggParams.nparams
+    mask[-1] = False
+    #mask = [False]*11
+    #mask[5] = True
 
     #true params
     trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02, mu=1.02)
