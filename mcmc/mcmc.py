@@ -18,14 +18,16 @@ class QuietImage(galsim.image.Image):
     def __str__(self):
         return "<galsim image with %s>" % self.bounds
 
+
+#parameter bounds
+theta_lb = [0,0,-1,-1,0,0,-1,-1,-.2,-.2, 0.8]
+theta_ub = [8,5, 1, 1,7,4, 1, 1, .2, .2, 1.2]    
+
 def lnprob(theta, data, dual_band, pixel_var, mask, trueParams):
-    #parameter bounds
-    theta_lb = [0,0,-1,-1,0,0,-1,-1,-.2,-.2, 0.8]
-    theta_ub = [8,5, 1, 1,7,4, 1, 1, .2, .2, 1.2]    
     #remove bounds for fixed parameters
-    theta_lb = list(compress(theta_lb, mask))
-    theta_ub = list(compress(theta_ub, mask))
-    if not all(theta > theta_lb) or not all(theta < theta_ub):
+    lb = list(compress(theta_lb, mask))
+    ub = list(compress(theta_ub, mask))
+    if not all(theta > lb) or not all(theta < ub):
         return -np.inf
 
     params = model.EggParams()
@@ -180,5 +182,5 @@ if __name__ == '__main__':
         if args.parallel_tempered:
             chain = chain.reshape(ntemps*args.nwalkers*args.nsample, ndim)
         fig = drawcorner.make_figure(chain, trueParams.toArray(mask), mask=mask)
-        print("writeing plot to " + name + ".png")
+        print("writing plot to " + name + ".png")
         fig.savefig(name + ".png")

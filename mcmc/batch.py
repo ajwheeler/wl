@@ -23,7 +23,13 @@ nsample = 1000
 nthreads = 16 if "cosmos5" in platform.node() else 1
 
 thetas = [model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02, mu=1.02)]
+for i in xrange(5):
+    ub = mcmc.theta_ub
+    lb = mcmc.theta_lb
+    theta = [np.uniform(low=l, high=u) for l,u n zip(lb,ub)]
+    thetas.append(theta)
 print("Thetas generated")
+print(thetas)
 
 for i in xrange(len(thetas)):
     os.mkdir(str(i))
