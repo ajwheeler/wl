@@ -26,7 +26,7 @@ thetas = [model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02, mu
 for i in xrange(5):
     ub = mcmc.theta_ub
     lb = mcmc.theta_lb
-    theta = [np.uniform(low=l, high=u) for l,u in zip(lb,ub)]
+    theta = [np.random.uniform(low=l, high=u) for l,u in zip(lb,ub)]
     thetas.append(theta)
 print("Thetas generated")
 print(thetas)
