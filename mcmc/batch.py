@@ -29,7 +29,7 @@ for i in xrange(nthetas):
     ub = mcmc.theta_ub
     lb = mcmc.theta_lb
     theta = model.EggParams()
-    theta.fromArray([np.random.uniform(low=l, high=u) for l,u in zip(lb,ub)])
+    theta.fromArray(np.array([np.random.uniform(low=l, high=u) for l,u in zip(lb,ub)]))
     thetas.append(theta)
 print("Thetas generated")
 print(thetas)
