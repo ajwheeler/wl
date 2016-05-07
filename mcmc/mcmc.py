@@ -21,7 +21,7 @@ class QuietImage(galsim.image.Image):
 
 #parameter bounds
 theta_lb = [0,0,-1,-1,0,0,-1,-1,-.2,-.2, 0.8]
-theta_ub = [8,5, 1, 1,7,4, 1, 1, .2, .2, 1.2]    
+theta_ub = [8,5, 1, 1,7,4, 1, 1, .2, .2, 1.2]
 
 def lnprob(theta, data, dual_band, pixel_var, mask, trueParams):
     #remove bounds for fixed parameters
@@ -133,6 +133,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--parallel-tempered', action='store_true')
     parser.add_argument('-d', '--draw-plot', action='store_true')
     parser.add_argument('-2', '--dual-band', action='store_true')
+    parser.add_argument('--nolensing', action='store_true')
     parser.add_argument('--snr', default=50, type=int)
     parser.add_argument('--suffix', default=None, type=str)
     args = parser.parse_args()
@@ -141,10 +142,12 @@ if __name__ == '__main__':
     
     NP = 200
     SCALE = .2
-    mask = [True]*model.EggParams.nparams
-    mask[-1] = False
-    #mask = [False]*11
-    #mask[5] = True
+    if args.nolensing:
+        mask = [True]*8 + [False]*3
+    else:
+        mask = [True]*model.EggParams.nparams
+        mask[-1] = False
+
 
     #true params
     trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02, mu=1.02)

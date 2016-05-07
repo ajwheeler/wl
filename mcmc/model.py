@@ -105,5 +105,7 @@ def egg(params, scale=None, match_image_size=None, dual_band=True, nx=None, ny=N
 
     return (images[0], images[1]) if dual_band else images[0]
 
-
-    
+def show(img):
+    import matplotlib.pyplot as  plt
+    plt.imshow(img.array, cmap=plt.get_cmap('gray'))
+    plt.show()
