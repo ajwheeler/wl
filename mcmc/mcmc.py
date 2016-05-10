@@ -136,6 +136,7 @@ if __name__ == '__main__':
     parser.add_argument('--nolensing', action='store_true')
     parser.add_argument('--snr', default=50, type=int)
     parser.add_argument('--suffix', default=None, type=str)
+    parser.add_argument('--mask', default=None, type=str)
     args = parser.parse_args()
     for arg in vars(args):
         print(arg, "=", getattr(args, arg))
@@ -144,10 +145,15 @@ if __name__ == '__main__':
     SCALE = .2
     if args.nolensing:
         mask = [True]*8 + [False]*3
+    elif args.mask:
+        assert(len(args.mask) == 11)
+        mask = [True if i == '1' else False for i in args.mask]
     else:
+        #by default, do everything except magnification
         mask = [True]*model.EggParams.nparams
         mask[-1] = False
 
+    print("mask = " + str(mask))
 
     #true params
     trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02, mu=1.02)
