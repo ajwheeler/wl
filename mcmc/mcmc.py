@@ -160,7 +160,7 @@ if __name__ == '__main__':
 
     sampler, stats = run_chain(trueParams, args.nwalkers, args.nburnin, 
                                args.nsample, args.nthreads, mask, args.parallel_tempered,
-                               NP=NP, scale=SCALE, dual_band=args.dual_band)
+                               NP=NP, scale=SCALE, dual_band=args.dual_band, SNR=args.snr)
     print()
     print("chain finished!")
     print()
