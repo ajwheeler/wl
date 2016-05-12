@@ -22,7 +22,7 @@ nsample = 1000
 
 nthreads = 16 if "cosmos5" in platform.node() else 1
 
-nthetas = 5
+nthetas = 1
 #randomly draw initial thetas
 thetas = []
 for i in xrange(nthetas):
@@ -47,7 +47,7 @@ for i,theta in enumerate(thetas):
     for l,m in [("shear", shear_mask), ("mag", mag_mask)]:
         #run single band chain
         sampler_s, stats_s = mcmc.run_chain(theta, nwalkers, nburnin, nsample, 
-                                            nthreads=nthreads, mask=m)
+                                            nthreads=nthreads, mask=m, SNR=SNR)
         with open(str(i) + '/' + l + '.single.stats.p', 'wb') as f:
             pickle.dump(stats_s,f)
         np.save(str(i) + '/' + l + '.single.chain.npy', sampler_s.flatchain)
@@ -60,7 +60,8 @@ for i,theta in enumerate(thetas):
 
         #run dual-band chain
         sampler_d, stats_d = mcmc.run_chain(theta, nwalkers, nburnin, nsample, 
-                                            nthreads=nthreads, mask=m, dual_band=True)
+                                            nthreads=nthreads, mask=m, dual_band=True,
+                                            SNR=SNR)
         with open(str(i) + '/' + l + '.double.stats.p', 'wb') as f:
             pickle.dump(stats_d,f)
         np.save(str(i) + '/' + l + '.double.chain.npy', sampler_d.flatchain)
