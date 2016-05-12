@@ -9,9 +9,8 @@ import priors
 def valid(theta):
     """returns True iff all shear vectors have mag <1"""
     p = True
-    p = p and theta.g1d**2 + theta.g2d**2 < .9
-    p = p and theta.g1b**2 + theta.g2b**1 < .9
-    p = p and theta.g1s**2 + theta.g2s**2 < .9
+    p = p and np.sqrt(theta.g1d**2 + theta.g2d**2) < .9
+    p = p and np.sqrt(theta.g1b**2 + theta.g2b**2) < .9
     return p
 
 SNR = 50

@@ -20,8 +20,8 @@ class QuietImage(galsim.image.Image):
 
 
 #parameter bounds
-theta_lb = [0,0,-1,-1,0,0,-1,-1,-.2,-.2, 0.8]
-theta_ub = [8,5, 1, 1,7,4, 1, 1, .2, .2, 1.2]
+theta_lb = [0,0,-1,-1,0,0,-1,-1,-.1,-.1, 0.8]
+theta_ub = [8,5, 1, 1,7,4, 1, 1, .1, .1, 1.2]
 
 def lnprob(theta, data, dual_band, pixel_var, mask, trueParams):
     #remove bounds for fixed parameters
