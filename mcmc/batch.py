@@ -8,7 +8,7 @@ import priors
 
 def valid(theta):
     """returns True iff all shear vectors have mag <1"""
-    p = true
+    p = True
     p = p and theta[2]**2 + theta[3]**2 < 1
     p = p and theta[6]**2 + theta[7]**1 < 1
     p = p and theta[8]**2 + theta[9]**2 < 1
