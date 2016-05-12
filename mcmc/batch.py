@@ -6,6 +6,14 @@ import pickle
 import numpy as np
 import priors
 
+def valid(theta):
+    """returns True iff all shear vectors have mag <1"""
+    p = true
+    p = p and theta[2]**2 + theta[3]**2 < 1
+    p = p and theta[6]**2 + theta[7]**1 < 1
+    p = p and theta[8]**2 + theta[9]**2 < 1
+    return p
+
 SNR = 50
 NP = 200
 scale = .2
@@ -29,7 +37,14 @@ for i in xrange(nthetas):
     ub = mcmc.theta_ub
     lb = mcmc.theta_lb
     theta = model.EggParams()
-    theta.fromArray(np.array([np.random.uniform(low=l, high=u) for l,u in zip(lb,ub)]))
+    
+    #hacky do-while construct
+    badTheta = True
+    while badTheta:
+        theta.fromArray(np.array([np.random.uniform(low=l, high=u) for l,u in zip(lb,ub)]))
+        if valid(theta):
+            badTheta = False
+
     thetas.append(theta)
 print("Thetas generated")
 print(thetas)
