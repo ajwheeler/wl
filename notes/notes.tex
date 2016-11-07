@@ -19,4 +19,48 @@
 \begin{document}
 %---------------------------------------------------------------------
 \section{The Model}
+The model is a simple disk+bulge galaxy, with the following parameters:
+\begin{itemize}
+\item $R_{disk}$, disk half-light radius
+\item $F_{disk}$, disk flux
+\item $g_1^{disk}$, disk intrinsic alignment
+\item $g_2^{disk}$, disk intrinsic alignment
+\item $R_{bulge}$, bulge half-light radius
+\item $F_{bulge}$, bulge flux
+\item $g_1^{bulge}$, bulge intrinsic alignment
+\item $g_2^{bulge}$, bulge intrinsic alignment
+\item $g_1^{shear}$, lensing shear
+\item $g_2^{shear}$, lensing shear
+\item $mu$, lensing magnification (this parameter is optional)
+\end{itemize}
+$g_1^{disk}$, $g_2^{disk}$, $g_1^{bulge}$, and $g_2^{shear}$ all model
+intrinsic alignment, but are parameterized like reduced shear in weak
+lensing formalism because it's easy to apply with galsim.  The bulge
+is drawn with a De Vaucouleurs profile, and the disk is drawn with an
+$n=1$ S'{e}rsic profile.  The image is convolved with a $\sigma = 0.25
+\textrm{ arcsecond}$ Gaussian PSF.
+
+One important aspect of the model is that the disk and bulge can
+optionally be drawn with different $r-g$ colors such that
+$(g-r)_{disk} \approx (g-r)_{bulge} - 2$. (n.b. I have to check to
+ensure that these magnitudes are being calculated correctly.)  We have
+been treating the color difference between the disk and bulge like a
+prior in that we are interested in how much switching it on affects
+our fits, but our current treatment presumes perfect knowledge of the
+color difference between disk and bulge.
+
+
+\section{Priors}
+Besides the ``prior'' on disk and bulge color, we are applying two 
+empirically motivated priors.
+\subsection{The Kormendy Relation}
+The Kormendy relation essentially a projection of the fundamental plane.
+It states that $R_e \propto <I>^{0.83}.  We take as a prior a distribution
+that is normally distributed around the line in $\log I$ - $\log R$
+space defined by the Kormendy relation.
+
+\subsection{
 \end{document}
+
+%%  LocalWords:  lensing galsim parameterized LocalWords De rsic
+%%  LocalWords:  Vaucouleurs Kormendy
