@@ -18,6 +18,9 @@
 %---------------------------------------------------------------------
 \begin{document}
 %---------------------------------------------------------------------
+\section{The Concept}
+
+
 \section{The Model}
 The model is a simple disk+bulge galaxy, with the following parameters:
 \begin{itemize}
@@ -54,12 +57,18 @@ color difference between disk and bulge.
 Besides the ``prior'' on disk and bulge color, we are applying two 
 empirically motivated priors.
 \subsection{The Kormendy Relation}
-The Kormendy relation essentially a projection of the fundamental plane.
-It states that $R_e \propto <I>^{0.83}.  We take as a prior a distribution
-that is normally distributed around the line in $\log I$ - $\log R$
-space defined by the Kormendy relation.
+The Kormendy relation essentially a projection of the fundamental
+plane.  It states that for elliptical galaxies, 
+$R_e \propto \langle I \rangle^{0.83}$.  
+We take, as a prior on the bulge radius and flux, a
+distribution that is normally distributed around the line in $\log I$
+- $\log R$ space defined by the Kormendy relation.
 
-\subsection{
+\subsection{Orientation Prior}
+Assuming that the disk and bulge are oriented randomly in 3D space, 
+they take on a non-uniform distribution of inclination angles.  By
+assuming a uniform distribution of 3D orientations, we arrive at a
+ prior proportional to $g = \sqrt{g_1^2 + g_2^2}$ for the disk and bulge.
 \end{document}
 
 %%  LocalWords:  lensing galsim parameterized LocalWords De rsic
