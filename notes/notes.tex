@@ -5,6 +5,7 @@
 \usepackage{amsthm}
 \usepackage{enumerate}
 \usepackage{graphicx}
+\usepackage[colorlinks]{hyperref}
 
 \topmargin=-0.45in
 \evensidemargin=0in
@@ -14,6 +15,8 @@
 \textheight=9.0in
 \headsep=0.25in 
 \linespread{1.1} % Line spacing
+
+\newcommand{\comment}[1]{{\color{red} (#1)}}
 
 %---------------------------------------------------------------------
 \begin{document}
@@ -40,9 +43,10 @@ $g_1^{disk}$, $g_2^{disk}$, $g_1^{bulge}$, and $g_2^{shear}$ all model
 intrinsic alignment, but are parameterized like reduced shear in weak
 lensing formalism because it's easy to apply with galsim.  The bulge
 is drawn with a De Vaucouleurs profile, and the disk is drawn with an
-$n=1$ S'{e}rsic profile.  The image is convolved with a $\sigma = 0.25
+$n=1$ S\'{e}rsic profile.  The image is convolved with a $\sigma = 0.25
 \textrm{ arcsecond}$ Gaussian PSF.
 
+\subsection{The color ``prior''}
 One important aspect of the model is that the disk and bulge can
 optionally be drawn with different $r-g$ colors such that
 $(g-r)_{disk} \approx (g-r)_{bulge} - 2$. (n.b. I have to check to
@@ -69,7 +73,9 @@ Assuming that the disk and bulge are oriented randomly in 3D space,
 they take on a non-uniform distribution of inclination angles.  By
 assuming a uniform distribution of 3D orientations, we arrive at a
  prior proportional to $g = \sqrt{g_1^2 + g_2^2}$ for the disk and bulge.
-\end{document}
 
-%%  LocalWords:  lensing galsim parameterized LocalWords De rsic
-%%  LocalWords:  Vaucouleurs Kormendy
+\section{Doing fits}
+At first, we tried using a simple custom quadratic MLM estimator \comment{What's the technical terminology?}.  Due to difficulties in fitting parameters with 
+complex constraints, we switched to MCMC fitting with \href{http://dan.iel.fm/emcee/current/}{emcee}.
+
+\end{document}
