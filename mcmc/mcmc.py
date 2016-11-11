@@ -156,11 +156,15 @@ if __name__ == '__main__':
     print("mask = " + str(mask))
 
     #true params
-    trueParams = model.EggParams(g1d = .2, g2d = .3, g2b = .4, g1s = .01, g2s = .02, mu=1.02)
+    trueParams = model.EggParams(g1d=.2, g2d=.3, g2b=.4, g1s=.01,
+                                 g2s = .02, mu=1.02)
 
-    sampler, stats = run_chain(trueParams, args.nwalkers, args.nburnin, 
-                               args.nsample, args.nthreads, mask, args.parallel_tempered,
-                               NP=NP, scale=SCALE, dual_band=args.dual_band, SNR=args.snr)
+    sampler, stats = run_chain(trueParams, args.nwalkers,
+                               args.nburnin, args.nsample,
+                               args.nthreads, mask,
+                               args.parallel_tempered, NP=NP,
+                               scale=SCALE, dual_band=args.dual_band,
+                               SNR=args.snr)
     print()
     print("chain finished!")
     print()

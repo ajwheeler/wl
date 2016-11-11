@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg') 
 import corner
 from itertools import compress
 import sys

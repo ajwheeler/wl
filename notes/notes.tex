@@ -75,7 +75,11 @@ assuming a uniform distribution of 3D orientations, we arrive at a
  prior proportional to $g = \sqrt{g_1^2 + g_2^2}$ for the disk and bulge.
 
 \section{Doing fits}
-At first, we tried using a simple custom quadratic MLM estimator \comment{What's the technical terminology?}.  Due to difficulties in fitting parameters with 
-complex constraints, we switched to MCMC fitting with \href{http://dan.iel.fm/emcee/current/}{emcee}.
+At first, we tried using a simple custom quadratic MLM estimator
+\comment{What's the technical terminology?}.  Due to difficulties in
+fitting parameters with complex constraints, we switched to MCMC
+fitting with \href{http://dan.iel.fm/emcee/current/}{emcee}.  The
+chain is run with flat priors, then the one mentioned above are
+applied after the chain has finished with importance sampling.
 
 \end{document}
