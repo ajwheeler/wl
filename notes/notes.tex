@@ -22,7 +22,9 @@
 \begin{document}
 %---------------------------------------------------------------------
 \section{The Concept}
- 
+We use a simple disk + bulge galaxy model (draw by galsim) to model
+the effects of weak lensing.  We would like to see how much simple
+empirical priors improve out fits.
 
 \section{The Model}
 The model is a simple disk+bulge galaxy, with the following parameters:
@@ -79,7 +81,15 @@ At first, we tried using a simple custom quadratic MLM estimator
 \comment{What's the technical terminology?}.  Due to difficulties in
 fitting parameters with complex constraints, we switched to MCMC
 fitting with \href{http://dan.iel.fm/emcee/current/}{emcee}.  The
-chain is run with flat priors, then the one mentioned above are
+chain is run with flat priors, then the ones mentioned above are
 applied after the chain has finished with importance sampling.
 
+\subsection{Convergence tests}
+We shoot for a burn-in time a few times larger the longest
+autocorrelation time out of each parameter, and we run the chain for
+about an order of magnitude longer than the longest autocorrelation
+time.
+
+Ideally, we would like an acceptance fraction of ~50\% for each chain, but 
+we often get closer to ~30\%.
 \end{document}

@@ -7,9 +7,9 @@ import model
 import mcmc
 
 def make_figure(samples, true_vals, weights=None, mask=[True]*model.EggParams.nparams, enforce_ranges=False):
-    labels = [r"$R_{disk}$", r"$F_{disk}$", r"$\gamma_1^{disk}$", r"$\gamma_2^{disk}$",
-              r"$R_{bulge}$", r"$F_{bulge}$", r"$\gamma_1^{bulge}$", r"$\gamma_2^{bulge}$",
-              r"$\gamma_1^{shear}$", r"$\gamma_2^{shear}$", r"$\mu$"]
+    labels = [r"$R_{disk}$", r"$F_{disk}$", r"$g_1^{disk}$", r"$g_2^{disk}$",
+              r"$R_{bulge}$", r"$F_{bulge}$", r"$g_1^{bulge}$", r"$g_2^{bulge}$",
+              r"$g_1^{shear}$", r"$g_2^{shear}$", r"$\mu$"]
     labels = ["(%s) " % v + l for (l,v) in zip(compress(labels,mask), true_vals)]
 
     if enforce_ranges:

@@ -82,6 +82,9 @@ def run_chain(trueParams, nwalkers, nburnin, nsample, nthreads=1,
         data.addNoiseSNR(galsim.GaussianNoise(),SNR,preserve_flux=True)
         data.__class__ = QuietImage
 
+    print('fix this!')
+    plt.imshow(data.array, cmap=plt.get_cmap('gray'))
+    plt.savefig("out.png")
 
     ndim = mask.count(True)
     if parallel_tempered:
