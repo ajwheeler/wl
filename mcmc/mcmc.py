@@ -83,6 +83,7 @@ def run_chain(trueParams, nwalkers, nburnin, nsample, nthreads=1,
         data.__class__ = QuietImage
 
     print('fix this!')
+    import matplotlib.pyplot as plt
     plt.imshow(data.array, cmap=plt.get_cmap('gray'))
     plt.savefig("out.png")
 
