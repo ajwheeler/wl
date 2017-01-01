@@ -74,7 +74,39 @@ distribution that is normally distributed around the line in $\log I$
 Assuming that the disk and bulge are oriented randomly in 3D space, 
 they take on a non-uniform distribution of inclination angles.  By
 assuming a uniform distribution of 3D orientations, we arrive at a
- prior proportional to $g = \sqrt{g_1^2 + g_2^2}$ for the disk and bulge.
+ prior proportional to $\gamma = \sqrt{\gamma_1^2 + \gamma_2^2}$ for the disk and bulge.
+If $i$ is the inclination angle ($i = 0$ for a face-on disk), then for an ideal
+(circular, perfectly thin) disk, the shear $\gamma$ is given by
+\[
+\gamma = \frac{a - b}{a + b} = \frac{1 - \cos(i)}{1 + \cos(i)}
+\Rightarrow i = \arccos{\left( \frac{1 - \gamma}{1 + \gamma} \right) }
+\]
+where $a$ and $b$ are the semi-major and semi-minor axes, respectively.
+
+The prior pdf on $\gamma$ is 
+\[
+p(\gamma) = p(i) \frac{\partial i}{\partial \gamma}
+\]
+where $p(i)$ is the prior pdf on $i$. It can be shown that
+$p(i) \propto \sin (i)$.  We can write $p(i)$ as
+\[
+p(i) \propto \sin(i)
+= \sin \left( \arccos \left( \frac{1 + \gamma}{1 - \gamma} \right) \right)
+= \sqrt{1 - \left( \frac{1 - \gamma}{1 + \gamma} \right)^2}
+= \frac{2 \sqrt{\gamma}}{1 + \gamma}
+\]
+And we can write $\frac{\partial i}{\partial \gamma}$ as
+\[
+\frac{\partial i}{\partial \gamma} 
+= \frac{\sqrt{\frac{\gamma}{(1 + \gamma)^2}}}{\gamma}
+= \frac{1}{\sqrt{\gamma} (1 + \gamma)}
+\]
+Thus, 
+\[
+p(\gamma) \propto \frac{2 \sqrt{\gamma}}{1 + \gamma} \frac{1}{\sqrt{\gamma} (1 + \gamma)}
+\propto \frac{1}{(1 + \gamma)^2}
+\]
+
 
 \section{Doing fits}
 At first, we tried using a simple custom quadratic MLM estimator
