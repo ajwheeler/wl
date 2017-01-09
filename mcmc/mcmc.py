@@ -7,7 +7,8 @@ import argparse
 import time
 import copy
 import pickle
-from itertools import compress
+import sys
+import itertools 
 
 class QuietImage(galsim.image.Image):
     """This is a hack so that the error output if emcee has an error calling
@@ -24,9 +25,11 @@ theta_lb = [0,0,-1,-1,0,0,-1,-1,-.1,-.1, 0.8]
 theta_ub = [8,5, 1, 1,7,4, 1, 1, .1, .1, 1.2]
 
 def lnprob(theta, data, dual_band, pixel_var, mask, trueParams):
+    theta = np.array(theta)
+
     #remove bounds for fixed parameters
-    lb = list(compress(theta_lb, mask))
-    ub = list(compress(theta_ub, mask))
+    lb = list(itertools.compress(theta_lb, mask))
+    ub = list(itertools.compress(theta_ub, mask))
     if not all(theta > lb) or not all(theta < ub):
         return -np.inf
 
@@ -175,6 +178,26 @@ if __name__ == '__main__':
     #true params
     trueParams = model.EggParams(g1d=.2, g2d=.3, g2b=.4, g1s=.01,
                                  g2s = .02, mu=1.02)
+
+    if args.gridsampler:
+        data = generate_data(trueParams, args.dual_band, NP, SCALE, args.snr)
+        pixel_noise = (SCALE)**2/(np.pi * trueParams.rd**2 * args.snr)
+
+        #use a simple grid sampler instead of MCMC
+        grid = []
+        grid.append(np.linspace(2,4,200))
+        grid.append(np.linspace(0,1,100))
+        grid.append(np.linspace(0,1,100))
+        grid.append(np.linspace(0,1,100))
+        grid = grid + [None]*7 #TODO pick grid spacing for other params
+
+        points = list(itertools.product(*itertools.compress(grid,mask)))
+        logls = [lnprob(p, data, args.dual_band, pixel_noise**2, mask, trueParams)\
+                 for p in points]
+
+        i = np.argmax(logls)
+        print("best params: " + str(points[i]))
+        sys.exit()
 
     sampler, stats = run_chain(trueParams, args.nwalkers,
                                args.nburnin, args.nsample,
