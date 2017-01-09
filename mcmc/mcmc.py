@@ -63,7 +63,6 @@ def generate_data(trueParams, dual_band=False, NP=200, scale=.2, SNR=50):
     data = model.egg(trueParams, dual_band=dual_band, nx=NP, ny=NP, scale=scale)
     
     #apply noise and make data a QuietImage (see class at top of file)
-    pixel_noise = (scale)**2/(np.pi * trueParams.rd**2 * SNR)
     if dual_band:
         for i in [0,1]:
             #bd = galsim.BaseDeviate(int(time.time()))
@@ -86,6 +85,7 @@ def run_chain(trueParams, nwalkers, nburnin, nsample, nthreads=1,
               dual_band=False, NP=200, scale=.2, SNR=50):
 
     data = generate_data(trueParams, dual_band, NP, scale, SNR)
+    pixel_noise = (scale)**2/(np.pi * trueParams.rd**2 * SNR)
 
     # print('fix this!')
     # import matplotlib
