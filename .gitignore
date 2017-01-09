@@ -7,6 +7,7 @@ __pycache__/
 *.png
 *.stats
 *.npy
+*.p
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
