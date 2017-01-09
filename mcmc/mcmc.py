@@ -59,13 +59,10 @@ def lnprob(theta, data, dual_band, pixel_var, mask, trueParams):
 
     return p * .5/pixel_var
 
-def run_chain(trueParams, nwalkers, nburnin, nsample, nthreads=1,
-              mask=True*model.EggParams.nparams, parallel_tempered=False,
-              dual_band=False, NP=200, scale=.2, SNR=50):
-
+def generate_data(trueParams, dual_band=False, NP=200, scale=.2, SNR=50):
     data = model.egg(trueParams, dual_band=dual_band, nx=NP, ny=NP, scale=scale)
     
-    #apply noise and make data a QuietImage
+    #apply noise and make data a QuietImage (see class at top of file)
     pixel_noise = (scale)**2/(np.pi * trueParams.rd**2 * SNR)
     if dual_band:
         for i in [0,1]:
@@ -81,13 +78,21 @@ def run_chain(trueParams, nwalkers, nburnin, nsample, nthreads=1,
         #data.addNoise(galsim.GaussianNoise(bd, pixel_noise))
         data.addNoiseSNR(galsim.GaussianNoise(),SNR,preserve_flux=True)
         data.__class__ = QuietImage
+    
+    return data
 
-    print('fix this!')
-    import matplotlib
-    matplotlib.use('Agg') 
-    import matplotlib.pyplot as plt
-    plt.imshow(data.array, cmap=plt.get_cmap('gray'))
-    plt.savefig("out.png")
+def run_chain(trueParams, nwalkers, nburnin, nsample, nthreads=1,
+              mask=True*model.EggParams.nparams, parallel_tempered=False,
+              dual_band=False, NP=200, scale=.2, SNR=50):
+
+    data = generate_data(trueParams, dual_band, NP, scale, SNR)
+
+    # print('fix this!')
+    # import matplotlib
+    # matplotlib.use('Agg') 
+    # import matplotlib.pyplot as plt
+    # plt.imshow(data.array, cmap=plt.get_cmap('gray'))
+    # plt.savefig("out.png")
 
     ndim = mask.count(True)
     if parallel_tempered:
@@ -140,17 +145,23 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--draw-plot', action='store_true')
     parser.add_argument('-2', '--dual-band', action='store_true')
     parser.add_argument('--nolensing', action='store_true')
+    parser.add_argument('--justdisk', action='store_true')
     parser.add_argument('--snr', default=50, type=int)
     parser.add_argument('--suffix', default=None, type=str)
     parser.add_argument('--mask', default=None, type=str)
+    parser.add_argument('--gridsampler', action='store_true')
     args = parser.parse_args()
     for arg in vars(args):
         print(arg, "=", getattr(args, arg))
     
     NP = 200
     SCALE = .2
+
+    #set mask -- which params to fit
     if args.nolensing:
         mask = [True]*8 + [False]*3
+    elif args.justdisk:
+        mask = [True]*4 + [False]*7
     elif args.mask:
         assert(len(args.mask) == 11)
         mask = [True if i == '1' else False for i in args.mask]
