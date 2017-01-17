@@ -7,8 +7,8 @@ import argparse
 import time
 import copy
 import pickle
-import sys
 import itertools 
+import pymultinest
 
 class QuietImage(galsim.image.Image):
     """This is a hack so that the error output if emcee has an error calling
@@ -21,10 +21,18 @@ class QuietImage(galsim.image.Image):
 
 
 #parameter bounds
-theta_lb = [0,0,-1,-1,0,0,-1,-1,-.1,-.1, 0.8]
-theta_ub = [8,5, 1, 1,7,4, 1, 1, .1, .1, 1.2]
+theta_lb = [0.,0.,-1.,-1.,0.,0.,-1.,-1.,-.1,-.1, 0.8]
+theta_ub = [8.,5., 1., 1.,7.,4., 1., 1., .1, .1, 1.2]
+
+def Prior(cube, ndim, nparams):
+    """turn the unit cube into the parameter cube, as per pymultinest"""
+    for i in xrange(ndim):
+        lb = theta_lb[i]
+        ub = theta_ub[i]
+        cube[i] = cube[i]*(ub-lb) - lb
 
 def lnprob(theta, data, dual_band, pixel_var, mask, trueParams):
+    """log likelyhood for emcee"""
     theta = np.array(theta)
 
     #remove bounds for fixed parameters
@@ -153,6 +161,7 @@ if __name__ == '__main__':
     parser.add_argument('--suffix', default=None, type=str)
     parser.add_argument('--mask', default=None, type=str)
     parser.add_argument('--gridsampler', action='store_true')
+    parser.add_argument('--multinest', action='store_true')
     args = parser.parse_args()
     for arg in vars(args):
         print(arg, "=", getattr(args, arg))
@@ -176,8 +185,8 @@ if __name__ == '__main__':
     print("mask = " + str(mask))
 
     #true params
-    trueParams = model.EggParams(g1d=.2, g2d=.3, g2b=.4, g1s=.01,
-                                 g2s = .02, mu=1.02)
+    trueParams = model.EggParams(g1d=.2, g2d=.3, g2b=.4, g1s=0,
+                                 g2s = 0, mu=1)
 
     if args.gridsampler:
         data = generate_data(trueParams, args.dual_band, NP, SCALE, args.snr)
@@ -197,43 +206,54 @@ if __name__ == '__main__':
 
         i = np.argmax(logls)
         print("best params: " + str(points[i]))
-        sys.exit()
 
-    sampler, stats = run_chain(trueParams, args.nwalkers,
-                               args.nburnin, args.nsample,
-                               args.nthreads, mask,
-                               args.parallel_tempered, NP=NP,
-                               scale=SCALE, dual_band=args.dual_band,
-                               SNR=args.snr)
-    print()
-    print("chain finished!")
-    print()
-    print(stats)
+    elif args.multinest:
+        ndim = mask.count(True)
 
-    #construct name
-    name = "%s.%s.%s" % (args.nwalkers, args.nburnin, args.nsample)
-    if args.parallel_tempered:
-        name += '.pt'
-    name += ".dual" if args.dual_band else ".single"
-    if args.suffix != None:
-        name += "." + args.suffix
-    t = time.localtime()
-    name = str(t.tm_mon) + "-" + str(t.tm_mday) + "." + name
+        #define the log likelihood for multinest
+        def loglikelyhood(cube, ndim, nparams, lnew):
+            return lnprob(cube, data, dual_band, pixel_var, mask, trueParams)
 
-    #write stats
-    with open(name+'.stats.p', 'wb') as f:
-        pickle.dump(stats,f)
+        pymultinest.run.run(loglikelyhood, Prior, ndim)
 
-    #save chain/lnprobs
-    np.save(name+".chain.npy", sampler.flatchain)
-    np.save(name+".lnprob.npy", sampler.flatlnprobability)
 
-    #draw corner plot
-    if args.draw_plot:
-        import drawcorner
-        chain = sampler.flatchain
+    else: # use emcee
+        sampler, stats = run_chain(trueParams, args.nwalkers,
+                                   args.nburnin, args.nsample,
+                                   args.nthreads, mask,
+                                   args.parallel_tempered, NP=NP,
+                                   scale=SCALE, dual_band=args.dual_band,
+                                   SNR=args.snr)
+        print()
+        print("chain finished!")
+        print()
+        print(stats)
+
+        #construct name
+        name = "%s.%s.%s" % (args.nwalkers, args.nburnin, args.nsample)
         if args.parallel_tempered:
-            chain = chain.reshape(ntemps*args.nwalkers*args.nsample, ndim)
-        fig = drawcorner.make_figure(chain, trueParams.toArray(mask), mask=mask)
-        print("writing plot to " + name + ".png")
-        fig.savefig(name + ".png")
+            name += '.pt'
+        name += ".dual" if args.dual_band else ".single"
+        if args.suffix != None:
+            name += "." + args.suffix
+        t = time.localtime()
+        name = str(t.tm_mon) + "-" + str(t.tm_mday) + "." + name
+
+        #write stats
+        with open(name+'.stats.p', 'wb') as f:
+            pickle.dump(stats,f)
+
+        #save chain/lnprobs
+        np.save(name+".chain.npy", sampler.flatchain)
+        np.save(name+".lnprob.npy", sampler.flatlnprobability)
+
+        #draw corner plot
+        if args.draw_plot:
+            import drawcorner
+            chain = sampler.flatchain
+            if args.parallel_tempered:
+                chain = chain.reshape(ntemps*args.nwalkers*args.nsample, ndim)
+            fig = drawcorner.make_figure(chain, trueParams.toArray(mask),
+                                         mask=mask)
+            print("writing plot to " + name + ".png")
+            fig.savefig(name + ".png")
