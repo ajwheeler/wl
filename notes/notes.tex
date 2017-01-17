@@ -21,6 +21,37 @@
 %---------------------------------------------------------------------
 \begin{document}
 %---------------------------------------------------------------------
+\section{Abstract}
+Gravitational lensing, a phenomenon in which light from distant
+galaxies is distorted by an intermediate mass distribution, is one of
+the most important probes of dark energy and gravity at large
+scales. A number of large current and forthcoming astronomical surveys
+(for instance DES, LSST, WFIRST) plan to use the spatially coherent
+distortion of galaxy ellipticities by gravitational lensing to map the
+distribution of dark matter and energy in the universe.  Here we
+explore for the first time \comment{?} the possibility of using physically
+motivated models of galaxies to improve shape measurement.  We use
+Markov-chain Monte Carlo in conjunction with state-of-the-art lensing
+simiulation software (GalSim) to show that well-understood scaling
+relations between observable properties of galaxies can be used
+to remove intrinsic alignment contamination. 
+
+\comment{
+To date, we have already shown that some modeling of the connection
+between the 3-D orientation of galactic disks and the measured shapes
+of galaxies can significantly improve the shape measurement. 
+By the time of the Denman, we will have used our
+simulations to explore the impact of using the Fundamental Plane,
+Kormendy, and Tully-Fisher relations -- all of which have been
+well-established in the astronomical literature for decades -- in
+shear measurement. 
+
+Once the simulations are complete, we will use software (Balrog) and
+statistical methods that have been developed by this group for similar
+purposes to deploy our new intrinsic alignment mitigation on Dark
+Energy Survey data.
+}
+
 \section{The Concept}
 We use a simple disk + bulge galaxy model (draw by galsim) to model
 the effects of weak lensing.  We would like to see how much simple
@@ -75,29 +106,29 @@ Assuming that the disk and bulge are oriented randomly in 3D space,
 they take on a non-uniform distribution of inclination angles.  By
 assuming a uniform distribution of 3D orientations, we arrive at a
  prior proportional to $\gamma = \sqrt{\gamma_1^2 + \gamma_2^2}$ for the disk and bulge.
-If $i$ is the inclination angle ($i = 0$ for a face-on disk), then for an ideal
+If $\phi$ is the inclination angle ($\phi = 0$ for a face-on disk), then for an ideal
 (circular, perfectly thin) disk, the shear $\gamma$ is given by
 \[
-\gamma = \frac{a - b}{a + b} = \frac{1 - \cos(i)}{1 + \cos(i)}
-\Rightarrow i = \arccos{\left( \frac{1 - \gamma}{1 + \gamma} \right) }
+\gamma = \frac{a - b}{a + b} = \frac{1 - \cos(\phi)}{1 + \cos(\phi)}
+\Rightarrow \phi = \arccos{\left( \frac{1 - \gamma}{1 + \gamma} \right) }
 \]
 where $a$ and $b$ are the semi-major and semi-minor axes, respectively.
 
 The prior pdf on $\gamma$ is 
 \[
-p(\gamma) = p(i) \frac{\partial i}{\partial \gamma}
+p(\gamma) = p(\phi) \frac{\partial \phi}{\partial \gamma}
 \]
-where $p(i)$ is the prior pdf on $i$. It can be shown that
-$p(i) \propto \sin (i)$.  We can write $p(i)$ as
+where $p(\phi)$ is the prior pdf on $\phi$. It can be shown that
+$p(\phi) \propto \sin (\phi)$.  We can write $p(\phi)$ as
 \[
-p(i) \propto \sin(i)
+p(\phi) \propto \sin(\phi)
 = \sin \left( \arccos \left( \frac{1 + \gamma}{1 - \gamma} \right) \right)
 = \sqrt{1 - \left( \frac{1 - \gamma}{1 + \gamma} \right)^2}
 = \frac{2 \sqrt{\gamma}}{1 + \gamma}
 \]
-And we can write $\frac{\partial i}{\partial \gamma}$ as
+And we can write $\frac{\partial \phi}{\partial \gamma}$ as
 \[
-\frac{\partial i}{\partial \gamma} 
+\frac{\partial \phi}{\partial \gamma} 
 = \frac{\sqrt{\frac{\gamma}{(1 + \gamma)^2}}}{\gamma}
 = \frac{1}{\sqrt{\gamma} (1 + \gamma)}
 \]
