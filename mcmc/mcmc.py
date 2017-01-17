@@ -209,12 +209,13 @@ if __name__ == '__main__':
 
     elif args.multinest:
         ndim = mask.count(True)
-
+        data = generate_data(trueParams, args.dual_band, NP, SCALE, args.snr)
+    
         #define the log likelihood for multinest
         def loglikelyhood(cube, ndim, nparams, lnew):
             return lnprob(cube, data, dual_band, pixel_var, mask, trueParams)
 
-        pymultinest.run.run(loglikelyhood, Prior, ndim)
+        pymultinest.run(loglikelyhood, Prior, ndim)
 
 
     else: # use emcee
