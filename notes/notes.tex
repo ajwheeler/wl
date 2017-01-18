@@ -7,50 +7,33 @@
 \usepackage{graphicx}
 \usepackage[colorlinks]{hyperref}
 
-\topmargin=-0.45in
-\evensidemargin=0in
-\oddsidemargin=0in
-
-\textwidth=6.5in
-\textheight=9.0in
-\headsep=0.25in 
-\linespread{1.1} % Line spacing
-
-\newcommand{\comment}[1]{{\color{red} (#1)}}
-
+\usepackage{margins}
+\usepackage{adam}
 %---------------------------------------------------------------------
 \begin{document}
 %---------------------------------------------------------------------
-\section{Abstract}
-Gravitational lensing, a phenomenon in which light from distant
-galaxies is distorted by an intermediate mass distribution, is one of
-the most important probes of dark energy and gravity at large
-scales. A number of large current and forthcoming astronomical surveys
-(for instance DES, LSST, WFIRST) plan to use the spatially coherent
-distortion of galaxy ellipticities by gravitational lensing to map the
-distribution of dark matter and energy in the universe.  Here we
-explore for the first time \comment{?} the possibility of using physically
-motivated models of galaxies to improve shape measurement.  We use
-Markov-chain Monte Carlo in conjunction with state-of-the-art lensing
-simiulation software (GalSim) to show that well-understood scaling
-relations between observable properties of galaxies can be used
-to remove intrinsic alignment contamination. 
-
+\begin{abstract}
+ A number of large current and forthcoming astronomical surveys (for
+ instance DES, LSST, WFIRST) plan to use the spatially coherent
+ distortion of galaxy ellipticities by gravitational lensing to map
+ the distribution of dark matter and energy in the universe.  Here we
+ explore for the first time \comment{?} the possibility of using
+ physically motivated models of galaxies to improve shape measurement.
+ We use Markov-chain Monte Carlo in conjunction with state-of-the-art
+ lensing simiulation software (GalSim) to show that well-understood
+ scaling relations between observable properties of galaxies can be
+ used to remove intrinsic alignment contamination.  Specifically, we
+ investigate statistical power of the Kormendy Relation, the color
+ difference between disks and bulges, and the connection between the
+ 3-D orientation of galactic disks and their measured shapes for the
+ purposes of galaxy shape measurement.
 \comment{
-To date, we have already shown that some modeling of the connection
-between the 3-D orientation of galactic disks and the measured shapes
-of galaxies can significantly improve the shape measurement. 
-By the time of the Denman, we will have used our
-simulations to explore the impact of using the Fundamental Plane,
-Kormendy, and Tully-Fisher relations -- all of which have been
-well-established in the astronomical literature for decades -- in
-shear measurement. 
-
 Once the simulations are complete, we will use software (Balrog) and
 statistical methods that have been developed by this group for similar
 purposes to deploy our new intrinsic alignment mitigation on Dark
 Energy Survey data.
 }
+\end{abstract}
 
 \section{The Concept}
 We use a simple disk + bulge galaxy model (draw by galsim) to model
@@ -68,9 +51,11 @@ The model is a simple disk+bulge galaxy, with the following parameters:
 \item $F_{bulge}$, bulge flux
 \item $g_1^{bulge}$, bulge intrinsic alignment
 \item $g_2^{bulge}$, bulge intrinsic alignment
+\red{
 \item $g_1^{shear}$, lensing shear
 \item $g_2^{shear}$, lensing shear
-\item $mu$, lensing magnification (this parameter is optional)
+\item $mu$, lensing magnification
+}
 \end{itemize}
 $g_1^{disk}$, $g_2^{disk}$, $g_1^{bulge}$, and $g_2^{shear}$ all model
 intrinsic alignment, but are parameterized like reduced shear in weak
@@ -82,8 +67,8 @@ $n=1$ S\'{e}rsic profile.  The image is convolved with a $\sigma = 0.25
 \subsection{The color ``prior''}
 One important aspect of the model is that the disk and bulge can
 optionally be drawn with different $r-g$ colors such that
-$(g-r)_{disk} \approx (g-r)_{bulge} - 2$. (n.b. I have to check to
-ensure that these magnitudes are being calculated correctly.)  We have
+$(g-r)_{disk} \approx (g-r)_{bulge} - 2$. \comment{n.b. I have to check to
+ensure that these magnitudes are being calculated correctly.}  We have
 been treating the color difference between the disk and bulge like a
 prior in that we are interested in how much switching it on affects
 our fits, but our current treatment presumes perfect knowledge of the
