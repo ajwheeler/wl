@@ -153,12 +153,13 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--draw-plot', action='store_true')
     parser.add_argument('-2', '--dual-band', action='store_true')
     parser.add_argument('--snr', default=50, type=int)
-    parser.add_argument('--suffix', default='nomag', type=str)
-    parser.add_argument('--mask', default=None, type=str)
+    parser.add_argument('--suffix', default=None, type=str)
+    parser.add_argument('--mask', default='nomag', type=str)
     parser.add_argument('--sampler', default='emcee', type=str,
                         choices=['emcee', 'multinest', 'gridsampler', 'none'])
     parser.add_argument('--savedata', type=str, default=None)
     parser.add_argument('--loaddata', type=str, default=None)
+    parser.add_argument('--drawdata', type=str, default=None)
     args = parser.parse_args()
     #for arg in vars(args):
     #    print(arg, "=", getattr(args, arg))
@@ -201,6 +202,14 @@ if __name__ == '__main__':
             with open(args.savedata,'w') as f:
                 pickle.dump((trueParams, pixel_noise, args.snr, data), f)
         
+    #save image of simulated data if requested
+    if args.drawdata:
+        #import matplotlib
+        #matplotlib.use('Agg') 
+        import matplotlib.pyplot as plt
+        plt.imshow(data.array, cmap=plt.get_cmap('gray'))
+        plt.savefig(args.drawdata)
+
 
     #sample with specified sampler
 
