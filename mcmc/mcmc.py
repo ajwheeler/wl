@@ -152,13 +152,13 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--parallel-tempered', action='store_true')
     parser.add_argument('-d', '--draw-plot', action='store_true')
     parser.add_argument('-2', '--dual-band', action='store_true')
-    parser.add_argument('--nolensing', action='store_true')
-    parser.add_argument('--justdisk', action='store_true')
     parser.add_argument('--snr', default=50, type=int)
-    parser.add_argument('--suffix', default=None, type=str)
+    parser.add_argument('--suffix', default='nomag', type=str)
     parser.add_argument('--mask', default=None, type=str)
-    parser.add_argument('--gridsampler', action='store_true')
-    parser.add_argument('--multinest', action='store_true')
+    parser.add_argument('--sampler', default='emcee', type=str,
+                        choices=['emcee', 'multinest', 'gridsampler', 'none'])
+    parser.add_argument('--savedata', type=str, default=None)
+    parser.add_argument('--loaddata', type=str, default=None)
     args = parser.parse_args()
     #for arg in vars(args):
     #    print(arg, "=", getattr(args, arg))
@@ -167,27 +167,44 @@ if __name__ == '__main__':
     SCALE = .2
 
     #set mask -- which params to fit
-    if args.nolensing:
+    if args.mask == 'nolensing':
+        # no lensing params (8)
         mask = [True]*8 + [False]*3
-    elif args.justdisk:
+    elif args.mask == 'justdisk':
+        #just the disk params (4)
         mask = [True]*4 + [False]*7
-    elif args.mask:
+    elif args.mask == 'nomag':
+        #by default, do everything except magnification (10)
+        mask = [True]*11
+        mask[-1] = False
+    elif args.mask == 'all':
+        #fit all params (11)
+        mask = [True]*11
+    else:
+        #custom mask
         assert(len(args.mask) == 11)
         mask = [True if i == '1' else False for i in args.mask]
-    else:
-        #by default, do everything except magnification
-        mask = [True]*model.EggParams.nparams
-        mask[-1] = False
-
-    print("mask = " + str(mask))
-
-    #true params, simulated data
-    trueParams = model.EggParams(g1d=.2, g2d=.3, g2b=.4, g1s=0,
+    print("mask = " + str([1 if m else 0 for m in mask]))
+    
+    #generate or load data
+    if args.loaddata:
+        with open(args.loaddata,'r') as f:
+            trueParams, pixel_noise, args.snr, data = pickle.load(f)
+    else: #generate data
+        #true params, simulated data
+        trueParams = model.EggParams(g1d=.2, g2d=.3, g2b=.4, g1s=0,
                                  g2s = 0, mu=1)
-    data = generate_data(trueParams, args.dual_band, NP, SCALE, args.snr)
-    pixel_noise = (SCALE)**2/(np.pi * trueParams.rd**2 * args.snr)
+        data = generate_data(trueParams, args.dual_band, NP, SCALE, args.snr)
+        data.__class__ = QuietImage 
+        pixel_noise = (SCALE)**2/(np.pi * trueParams.rd**2 * args.snr)
+        if args.savedata:
+            with open(args.savedata,'w') as f:
+                pickle.dump((trueParams, pixel_noise, args.snr, data), f)
+        
 
-    if args.gridsampler:
+    #sample with specified sampler
+
+    if args.sampler == 'gridsampler':
         #use a simple grid sampler instead of MCMC
         grid = []
         grid.append(np.linspace(2,4,200))
@@ -203,7 +220,7 @@ if __name__ == '__main__':
         i = np.argmax(logls)
         print("best params: " + str(points[i]))
 
-    elif args.multinest:
+    elif args.sampler == 'multinest':
         ndim = mask.count(True)
 
         #define the log likelihood for multinest
@@ -213,7 +230,7 @@ if __name__ == '__main__':
         pymultinest.run(loglikelyhood, FlatPrior, ndim,n_live_points=100, multimodal=False)
 
 
-    else: # use emcee
+    elif args.sampler == 'emcee':
         sampler, stats = run_chain(data, pixel_noise, trueParams, args.nwalkers,
                                    args.nburnin, args.nsample,
                                    args.nthreads, mask,
