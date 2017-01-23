@@ -24,7 +24,7 @@ class QuietImage(galsim.image.Image):
 theta_lb = [0.,0.,-1.,-1.,0.,0.,-1.,-1.,-.1,-.1, 0.8]
 theta_ub = [8.,5., 1., 1.,7.,4., 1., 1., .1, .1, 1.2]
 
-def Prior(cube, ndim, nparams):
+def FlatPrior(cube, ndim, nparams):
     """turn the unit cube into the parameter cube, as per pymultinest"""
     for i in xrange(ndim):
         lb = theta_lb[i]
@@ -91,12 +91,9 @@ def generate_data(trueParams, dual_band=False, NP=200, scale=.2, SNR=50):
     
     return data
 
-def run_chain(trueParams, nwalkers, nburnin, nsample, nthreads=1,
+def run_chain(data, pixel_noise, trueParams, nwalkers, nburnin, nsample, nthreads=1,
               mask=True*model.EggParams.nparams, parallel_tempered=False,
               dual_band=False, NP=200, scale=.2, SNR=50):
-
-    data = generate_data(trueParams, dual_band, NP, scale, SNR)
-    pixel_noise = (scale)**2/(np.pi * trueParams.rd**2 * SNR)
 
     # print('fix this!')
     # import matplotlib
@@ -163,8 +160,8 @@ if __name__ == '__main__':
     parser.add_argument('--gridsampler', action='store_true')
     parser.add_argument('--multinest', action='store_true')
     args = parser.parse_args()
-    for arg in vars(args):
-        print(arg, "=", getattr(args, arg))
+    #for arg in vars(args):
+    #    print(arg, "=", getattr(args, arg))
     
     NP = 200
     SCALE = .2
@@ -184,14 +181,13 @@ if __name__ == '__main__':
 
     print("mask = " + str(mask))
 
-    #true params
+    #true params, simulated data
     trueParams = model.EggParams(g1d=.2, g2d=.3, g2b=.4, g1s=0,
                                  g2s = 0, mu=1)
+    data = generate_data(trueParams, args.dual_band, NP, SCALE, args.snr)
+    pixel_noise = (SCALE)**2/(np.pi * trueParams.rd**2 * args.snr)
 
     if args.gridsampler:
-        data = generate_data(trueParams, args.dual_band, NP, SCALE, args.snr)
-        pixel_noise = (SCALE)**2/(np.pi * trueParams.rd**2 * args.snr)
-
         #use a simple grid sampler instead of MCMC
         grid = []
         grid.append(np.linspace(2,4,200))
@@ -209,18 +205,16 @@ if __name__ == '__main__':
 
     elif args.multinest:
         ndim = mask.count(True)
-        data = generate_data(trueParams, args.dual_band, NP, SCALE, args.snr)
-        pixel_noise = (SCALE)**2/(np.pi * trueParams.rd**2 * args.snr)
 
         #define the log likelihood for multinest
         def loglikelyhood(cube, ndim, nparams, lnew):
             return lnprob(cube, data, args.dual_band, pixel_noise**2, mask, trueParams)
 
-        pymultinest.run(loglikelyhood, Prior, ndim,n_live_points=100, multimodal=False)
+        pymultinest.run(loglikelyhood, FlatPrior, ndim,n_live_points=100, multimodal=False)
 
 
     else: # use emcee
-        sampler, stats = run_chain(trueParams, args.nwalkers,
+        sampler, stats = run_chain(data, pixel_noise, trueParams, args.nwalkers,
                                    args.nburnin, args.nsample,
                                    args.nthreads, mask,
                                    args.parallel_tempered, NP=NP,
