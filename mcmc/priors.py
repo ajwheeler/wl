@@ -39,7 +39,7 @@ def calculate_priors(chain):
         gamma = np.sqrt(theta[2]**2  + theta[3]**2)
         if gamma > 1:
             weights["orientation"][i] = 0
-        weights["orientation"][i] = gamma
+        weights["orientation"][i] = 1.0/((1.0+gamma)**2)
 
     return weights
 
