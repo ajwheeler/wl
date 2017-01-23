@@ -210,12 +210,13 @@ if __name__ == '__main__':
     elif args.multinest:
         ndim = mask.count(True)
         data = generate_data(trueParams, args.dual_band, NP, SCALE, args.snr)
-    
+        pixel_noise = (SCALE)**2/(np.pi * trueParams.rd**2 * args.snr)
+
         #define the log likelihood for multinest
         def loglikelyhood(cube, ndim, nparams, lnew):
-            return lnprob(cube, data, dual_band, pixel_var, mask, trueParams)
+            return lnprob(cube, data, args.dual_band, pixel_noise**2, mask, trueParams)
 
-        pymultinest.run(loglikelyhood, Prior, ndim)
+        pymultinest.run(loglikelyhood, Prior, ndim,n_live_points=100, multimodal=False)
 
 
     else: # use emcee
