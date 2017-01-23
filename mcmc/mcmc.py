@@ -8,7 +8,6 @@ import time
 import copy
 import pickle
 import itertools 
-import pymultinest
 
 class QuietImage(galsim.image.Image):
     """This is a hack so that the error output if emcee has an error calling
@@ -230,6 +229,7 @@ if __name__ == '__main__':
         print("best params: " + str(points[i]))
 
     elif args.sampler == 'multinest':
+        import pymultinest
         ndim = mask.count(True)
 
         #define the log likelihood for multinest
