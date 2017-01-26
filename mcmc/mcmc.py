@@ -244,11 +244,9 @@ if __name__ == '__main__':
 
     elif args.sampler == 'emcee':
         sampler, stats = run_chain(data, pixel_noise, trueParams, args.nwalkers,
-                                   args.nburnin, args.nsample,
-                                   args.nthreads, mask,
-                                   args.parallel_tempered, NP=NP,
-                                   scale=SCALE, dual_band=args.dual_band,
-                                   SNR=args.snr)
+                                   args.nburnin, args.nsample, args.nthreads, mask,
+                                   args.parallel_tempered, NP=NP, scale=SCALE, 
+                                   dual_band=args.dual_band, SNR=args.snr)
         print()
         print("chain finished!")
         print()
