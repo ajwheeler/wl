@@ -215,17 +215,20 @@ if __name__ == '__main__':
     if args.sampler == 'gridsampler':
         #use a simple grid sampler instead of MCMC
         grid = []
-        grid.append(np.linspace(2,4,200))
-        grid.append(np.linspace(0,1,100))
-        grid.append(np.linspace(0,1,100))
-        grid.append(np.linspace(0,1,100))
-        grid = grid + [None]*7 #TODO pick grid spacing for other params
+        grid.append(np.linspace(2.9,3,5,60))
+        grid.append(np.linspace(0.6,.9,20))
+        #grid.append(np.linspace(0,1,100))
+        #grid.append(np.linspace(0,1,100))
+        grid = grid + [None]*9 #TODO pick grid spacing for other params
 
+        print('grid')
         points = list(itertools.product(*itertools.compress(grid,mask)))
+        print('points')
         logls = [lnprob(p, data, args.dual_band, pixel_noise**2, mask, trueParams)\
                  for p in points]
-
+        print('logls')
         i = np.argmax(logls)
+        print('max')
         print("best params: " + str(points[i]))
 
     elif args.sampler == 'multinest':
