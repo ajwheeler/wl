@@ -79,27 +79,20 @@ def generate_data(trueParams, dual_band=False, NP=200, scale=.2, SNR=50):
             data[i].addNoiseSNR(galsim.GaussianNoise(),SNR,preserve_flux=True)
 
         print("WARNING: SNR may be incorrect")
-        
-        data[0].__class__ = QuietImage #g band image
+        #TODO how to ensure same total SNR?
+        var = data[0].__class__ = QuietImage #g band image
         data[1].__class__ = QuietImage #r band image
     else:
         #bd = galsim.BaseDeviate(int(time.time()))
         #data.addNoise(galsim.GaussianNoise(bd, pixel_noise))
-        data.addNoiseSNR(galsim.GaussianNoise(),SNR,preserve_flux=True)
+        var = data.addNoiseSNR(galsim.GaussianNoise(),SNR,preserve_flux=True)
         data.__class__ = QuietImage
     
-    return data
+    return data, var
 
-def run_chain(data, pixel_noise, trueParams, nwalkers, nburnin, nsample, nthreads=1,
+def run_chain(data, pixel_var, trueParams, nwalkers, nburnin, nsample, nthreads=1,
               mask=True*model.EggParams.nparams, parallel_tempered=False,
               dual_band=False, NP=200, scale=.2, SNR=50):
-
-    # print('fix this!')
-    # import matplotlib
-    # matplotlib.use('Agg') 
-    # import matplotlib.pyplot as plt
-    # plt.imshow(data.array, cmap=plt.get_cmap('gray'))
-    # plt.savefig("out.png")
 
     ndim = mask.count(True)
     if parallel_tempered:
@@ -110,13 +103,13 @@ def run_chain(data, pixel_noise, trueParams, nwalkers, nburnin, nsample, nthread
         def logp(x):
             return 0.01
         sampler = emcee.PTSampler(ntemps, nwalkers, ndim, lnprob, logp, 
-                                  loglargs=[data, dual_band, pixel_noise**2, mask, trueParams],
+                                  loglargs=[data, dual_band, pixel_var, mask, trueParams],
                                   threads=nthreads)
     else:
         theta0 = [trueParams.toArray(mask) + 1e-2*np.random.randn(ndim)\
                   for _ in range(nwalkers)]
         sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, 
-                                        args=[data, dual_band, pixel_noise**2, mask, trueParams], 
+                                        args=[data, dual_band, pixel_var, mask, trueParams], 
                                         threads=nthreads)
 
     pos, _, state = sampler.run_mcmc(theta0, nburnin)
@@ -189,17 +182,16 @@ if __name__ == '__main__':
     #generate or load data
     if args.loaddata:
         with open(args.loaddata,'r') as f:
-            trueParams, pixel_noise, args.snr, data = pickle.load(f)
+            trueParams, pixel_var, args.snr, data = pickle.load(f)
     else: #generate data
         #true params, simulated data
         trueParams = model.EggParams(g1d=.2, g2d=.3, g2b=.4, g1s=0,
                                  g2s = 0, mu=1)
-        data = generate_data(trueParams, args.dual_band, NP, SCALE, args.snr)
-        data.__class__ = QuietImage 
-        pixel_noise = (SCALE)**2/(np.pi * trueParams.rd**2 * args.snr)
+        data, pixel_var = generate_data(trueParams, args.dual_band, NP, SCALE, args.snr)
+
         if args.savedata:
             with open(args.savedata,'w') as f:
-                pickle.dump((trueParams, pixel_noise, args.snr, data), f)
+                pickle.dump((trueParams, pixel_var, args.snr, data), f)
         
     #save image of simulated data if requested
     if args.drawdata:
@@ -224,7 +216,7 @@ if __name__ == '__main__':
         print('grid')
         points = list(itertools.product(*itertools.compress(grid,mask)))
         print('points')
-        logls = [lnprob(p, data, args.dual_band, pixel_noise**2, mask, trueParams)\
+        logls = [lnprob(p, data, args.dual_band, pixel_var, mask, trueParams)\
                  for p in points]
         print('logls')
         i = np.argmax(logls)
@@ -237,13 +229,13 @@ if __name__ == '__main__':
 
         #define the log likelihood for multinest
         def loglikelyhood(cube, ndim, nparams, lnew):
-            return lnprob(cube, data, args.dual_band, pixel_noise**2, mask, trueParams)
+            return lnprob(cube, data, args.dual_band, pixel_var, mask, trueParams)
 
         pymultinest.run(loglikelyhood, FlatPrior, ndim,n_live_points=100, multimodal=False)
 
 
     elif args.sampler == 'emcee':
-        sampler, stats = run_chain(data, pixel_noise, trueParams, args.nwalkers,
+        sampler, stats = run_chain(data, pixel_var, trueParams, args.nwalkers,
                                    args.nburnin, args.nsample, args.nthreads, mask,
                                    args.parallel_tempered, NP=NP, scale=SCALE, 
                                    dual_band=args.dual_band, SNR=args.snr)
