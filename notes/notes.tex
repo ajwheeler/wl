@@ -144,8 +144,12 @@ we often get closer to ~30\%.
 \subsection{Signal to Noise Ratio}
 Simulated images are generated at a user-specified SNR.  This is
 acomplished with \code{galsim.noise.addNoiseSNR}, which uses the
-definition of SNR from Great08.  See Galsim
-\href{http://galsim-developers.github.io/GalSim/namespacegalsim_1_1noise.html#a86f91278331ac9c134c25b16d4c67a32}{emcee}
+definition of SNR from Great08.  Briefly, 
+\[
+\sigma_I = \sum_{\textrm{pixels } i}\frac{I_i^2}{\textrm{SNR}^2}.
+\]
+See Galsim
+\href{http://galsim-developers.github.io/GalSim/namespacegalsim_1_1noise.html#a86f91278331ac9c134c25b16d4c67a32}{docs}
 for more info.
 
 \end{document}
