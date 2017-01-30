@@ -7,7 +7,7 @@ import argparse
 import time
 import copy
 import pickle
-import itertools 
+import itertools
 
 class QuietImage(galsim.image.Image):
     """This is a hack so that the error output if emcee has an error calling
@@ -71,7 +71,7 @@ def lnprob(theta, data, dual_band, pixel_var, mask, trueParams):
 
 def generate_data(trueParams, dual_band=False, NP=200, scale=.2, SNR=50):
     data = model.egg(trueParams, dual_band=dual_band, nx=NP, ny=NP, scale=scale)
-    
+
     #apply noise and make data a QuietImage (see class at top of file)
     if dual_band:
         for i in [0,1]:
@@ -87,7 +87,7 @@ def generate_data(trueParams, dual_band=False, NP=200, scale=.2, SNR=50):
         #data.addNoise(galsim.GaussianNoise(bd, pixel_noise))
         var = data.addNoiseSNR(galsim.GaussianNoise(),SNR,preserve_flux=True)
         data.__class__ = QuietImage
-    
+
     return data, var
 
 def run_chain(data, pixel_var, trueParams, nwalkers, nburnin, nsample, nthreads=1,
@@ -97,19 +97,20 @@ def run_chain(data, pixel_var, trueParams, nwalkers, nburnin, nsample, nthreads=
     ndim = mask.count(True)
     if parallel_tempered:
         ntemps = 20
-        theta0 = [[trueParams.toArray(mask) + 1e-2*np.random.randn(ndim) \
+
+        theta0 = [[model.EggParams().toArray(mask) + 1e-2*np.random.randn(ndim) \
                    for _ in range(nwalkers)] for _ in range(ntemps)]
         #flat prior
         def logp(x):
             return 0.01
-        sampler = emcee.PTSampler(ntemps, nwalkers, ndim, lnprob, logp, 
+        sampler = emcee.PTSampler(ntemps, nwalkers, ndim, lnprob, logp,
                                   loglargs=[data, dual_band, pixel_var, mask, trueParams],
                                   threads=nthreads)
     else:
         theta0 = [trueParams.toArray(mask) + 1e-2*np.random.randn(ndim)\
                   for _ in range(nwalkers)]
-        sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, 
-                                        args=[data, dual_band, pixel_var, mask, trueParams], 
+        sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob,
+                                        args=[data, dual_band, pixel_var, mask, trueParams],
                                         threads=nthreads)
 
     pos, _, state = sampler.run_mcmc(theta0, nburnin)
@@ -155,7 +156,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     #for arg in vars(args):
     #    print(arg, "=", getattr(args, arg))
-    
+
     NP = 200
     SCALE = .2
 
@@ -178,7 +179,7 @@ if __name__ == '__main__':
         assert(len(args.mask) == 11)
         mask = [True if i == '1' else False for i in args.mask]
     print("mask = " + str([1 if m else 0 for m in mask]))
-    
+
     #generate or load data
     if args.loaddata:
         with open(args.loaddata,'r') as f:
@@ -192,11 +193,11 @@ if __name__ == '__main__':
         if args.savedata:
             with open(args.savedata,'w') as f:
                 pickle.dump((trueParams, pixel_var, args.snr, data), f)
-        
+
     #save image of simulated data if requested
     if args.drawdata:
         #import matplotlib
-        #matplotlib.use('Agg') 
+        #matplotlib.use('Agg')
         import matplotlib.pyplot as plt
         plt.imshow(data.array, cmap=plt.get_cmap('gray'))
         plt.savefig(args.drawdata)
@@ -237,7 +238,7 @@ if __name__ == '__main__':
     elif args.sampler == 'emcee':
         sampler, stats = run_chain(data, pixel_var, trueParams, args.nwalkers,
                                    args.nburnin, args.nsample, args.nthreads, mask,
-                                   args.parallel_tempered, NP=NP, scale=SCALE, 
+                                   args.parallel_tempered, NP=NP, scale=SCALE,
                                    dual_band=args.dual_band, SNR=args.snr)
         print()
         print("chain finished!")
