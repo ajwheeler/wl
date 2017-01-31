@@ -69,8 +69,8 @@ def lnprob(theta, data, dual_band, pixel_var, mask, trueParams):
 
     return p * .5/pixel_var
 
-def generate_data(trueParams, dual_band=False, NP=200, scale=.2, SNR=50):
-    data = model.egg(trueParams, dual_band=dual_band, nx=NP, ny=NP, scale=scale)
+def generate_data(trueParams, dual_band=False, NP=200, SNR=50):
+    data = model.egg(trueParams, dual_band=dual_band, nx=NP, ny=NP)
 
     #apply noise and make data a QuietImage (see class at top of file)
     if dual_band:
@@ -92,7 +92,7 @@ def generate_data(trueParams, dual_band=False, NP=200, scale=.2, SNR=50):
 
 def run_chain(data, pixel_var, trueParams, nwalkers, nburnin, nsample, nthreads=1,
               mask=True*model.EggParams.nparams, parallel_tempered=False,
-              dual_band=False, NP=200, scale=.2, SNR=50):
+              dual_band=False, NP=200, SNR=50):
 
     ndim = mask.count(True)
     if parallel_tempered:
@@ -131,7 +131,6 @@ def run_chain(data, pixel_var, trueParams, nwalkers, nburnin, nsample, nthreads=
     stats['dual_band'] = dual_band
     stats['NP'] = NP
     stats['SNR'] = SNR
-    stats['scale'] = scale
     stats['time'] = time.localtime()
 
     return sampler, stats
@@ -166,7 +165,6 @@ if __name__ == '__main__':
     #    print(arg, "=", getattr(args, arg))
 
     NP = 200
-    SCALE = .2
 
     #set mask -- which params to fit
     if args.mask == 'nolensing':
@@ -196,7 +194,7 @@ if __name__ == '__main__':
         #true params, simulated data
         trueParams = model.EggParams(g1d=.2, g2d=.3, g2b=.4, g1s=0,
                                  g2s = 0, mu=1)
-        data, pixel_var = generate_data(trueParams, args.dual_band, NP, SCALE, args.snr)
+        data, pixel_var = generate_data(trueParams, args.dual_band, NP, args.snr)
 
         if args.savedata:
             with open(args.savedata,'w') as f:
@@ -246,7 +244,7 @@ if __name__ == '__main__':
     elif args.sampler == 'emcee':
         sampler, stats = run_chain(data, pixel_var, trueParams, args.nwalkers,
                                    args.nburnin, args.nsample, args.nthreads, mask,
-                                   args.parallel_tempered, NP=NP, scale=SCALE,
+                                   args.parallel_tempered, NP=NP,
                                    dual_band=args.dual_band, SNR=args.snr)
         print()
         print("chain finished!")

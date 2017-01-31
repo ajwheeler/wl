@@ -9,8 +9,8 @@ class EggParams():
 
     rb = 1
     fb = .3
-    g1b = 0 
-    g2b = 0 
+    g1b = 0
+    g2b = 0
 
     g1s = 0
     g2s = 0
@@ -41,21 +41,21 @@ class EggParams():
 
     def __repr__(self):
         return "Disk{r=%s, I=%s, g1=%s, g2=%s}, Bulge{r=%s, I=%s, g1=%s, g2=%s}, Lensing{g1=%s, g2=%s, mu=%s}"\
-            % (self.rd, self.fd, self.g1d, self.g2d, 
-               self.rb, self.fb, self.g1b, self.g2b, 
+            % (self.rd, self.fd, self.g1d, self.g2d,
+               self.rb, self.fb, self.g1b, self.g2b,
                self.g1s, self.g2s, self.mu)
 
     def fromArray(self, array, mask=[True]*nparams):
         if array.shape != (mask.count(True),):
-            raise RuntimeError("parameter array should be a numpy array with shape (%s,)" 
+            raise RuntimeError("parameter array should be a numpy array with shape (%s,)"
                                % mask.count(True))
-             
+
         j = 0
         for i in xrange(self.nparams):
             if mask[i]:
                 self[self.labels[i]] = array[j]
                 j += 1
-        
+
 
     def toArray(self, mask=[True]*nparams):
         vals = []
@@ -65,7 +65,7 @@ class EggParams():
         return np.array(vals)
 
 
-def egg(params, scale=None, match_image_size=None, dual_band=True, nx=None, ny=None):
+def egg(params, scale=0.2, match_image_size=None, dual_band=False, nx=None, ny=None):
     r_psf = .25
 
     disk = galsim.Exponential(half_light_radius=params.rd, flux=params.fd)
@@ -88,7 +88,7 @@ def egg(params, scale=None, match_image_size=None, dual_band=True, nx=None, ny=N
 
     images = []
     for egg in [green_egg, red_egg] if dual_band else [egg]:
-        #apply shear  
+        #apply shear
         egg = egg.shear(g1=params.g1s, g2=params.g2s)
         egg = egg.magnify(params.mu)
 
@@ -99,7 +99,7 @@ def egg(params, scale=None, match_image_size=None, dual_band=True, nx=None, ny=N
         if match_image_size == None:
             image = egg.drawImage(scale=scale, nx=nx, ny=ny)
         else:
-            image = egg.drawImage(scale=match_image_size.scale, 
+            image = egg.drawImage(scale=match_image_size.scale,
                                   bounds = match_image_size.bounds)
         images.append(image)
 
