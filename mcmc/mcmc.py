@@ -136,6 +136,14 @@ def run_chain(data, pixel_var, trueParams, nwalkers, nburnin, nsample, nthreads=
 
     return sampler, stats
 
+
+#     #    #    ### #     #
+##   ##   # #    #  ##    #
+# # # #  #   #   #  # #   #
+#  #  # #     #  #  #  #  #
+#     # #     #  #  #  #  #
+#     # #######  #  #   # #
+#     # #     # ### #    ##
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Sample lnprob")
     parser.add_argument('-n', '--nthreads', default=1, type=int)

@@ -67,7 +67,7 @@ $n=1$ S\'{e}rsic profile.  The image is convolved with a $\sigma = 0.25
 \subsection{The color ``prior''}
 One important aspect of the model is that the disk and bulge can
 optionally be drawn with different $r-g$ colors such that
-$(g-r)_{disk} \approx (g-r)_{bulge} - 2$. \comment{n.b. I have to check to
+$(r-g)_{disk} \approx (r-g)_{bulge} - 2$. \comment{n.b. I have to check to
 ensure that these magnitudes are being calculated correctly.}  We have
 been treating the color difference between the disk and bulge like a
 prior in that we are interested in how much switching it on affects
@@ -76,18 +76,19 @@ color difference between disk and bulge.
 
 
 \section{Priors}
-Besides the ``prior'' on disk and bulge color, we are applying two 
+Besides the ``prior'' on disk and bulge color, we are applying two
 empirically motivated priors.
 \subsection{The Kormendy Relation}
 The Kormendy relation essentially a projection of the fundamental
-plane.  It states that for elliptical galaxies, 
-$R_e \propto \langle I \rangle^{0.83}$.  
+plane.  It states that for elliptical galaxies,
+$R_e \propto \langle I \rangle_e^{0.83}$, where $R_e$ is the effective radius
+and $\langle I \rangle_e$ is the mean surface brightness within $R_e$.
 We take, as a prior on the bulge radius and flux, a
 distribution that is normally distributed around the line in $\log I$
 - $\log R$ space defined by the Kormendy relation.
 
 \subsection{Orientation Prior}
-Assuming that the disk is oriented randomly in 3D space, 
+Assuming that the disk is oriented randomly in 3D space,
 they take on a non-uniform distribution of inclination angles.  By
 assuming a uniform distribution of 3D orientations, we arrive at a
  prior proportional to $\gamma = \sqrt{\gamma_1^2 + \gamma_2^2}$.
@@ -99,7 +100,7 @@ If $\phi$ is the inclination angle ($\phi = 0$ for a face-on disk), then for an 
 \]
 where $a$ and $b$ are the semi-major and semi-minor axes, respectively.
 
-The prior pdf on $\gamma$ is 
+The prior pdf on $\gamma$ is
 \[
 p(\gamma) = p(\phi) \frac{\partial \phi}{\partial \gamma}
 \]
@@ -113,11 +114,11 @@ p(\phi) \propto \sin(\phi)
 \]
 And we can write $\frac{\partial \phi}{\partial \gamma}$ as
 \[
-\frac{\partial \phi}{\partial \gamma} 
+\frac{\partial \phi}{\partial \gamma}
 = \frac{\sqrt{\frac{\gamma}{(1 + \gamma)^2}}}{\gamma}
 = \frac{1}{\sqrt{\gamma} (1 + \gamma)}
 \]
-Thus, 
+Thus,
 \[
 p(\gamma) \propto \frac{2 \sqrt{\gamma}}{1 + \gamma} \frac{1}{\sqrt{\gamma} (1 + \gamma)}
 \propto \frac{1}{(1 + \gamma)^2}
@@ -132,24 +133,28 @@ fitting with \href{http://dan.iel.fm/emcee/current/}{emcee}.  The
 chain is run with flat priors, then the ones mentioned above are
 applied after the chain has finished with importance sampling.
 
+For a 4-parameter fit (just the disk or just the bulge), \code{nsample=1500,
+  nburnin=300, nwalker=50} seems to be about right.
+
 \subsection{Convergence tests}
 We shoot for a burn-in time a few times larger the longest
 autocorrelation time out of each parameter, and we run the chain for
 about an order of magnitude longer than the longest autocorrelation
 time.
 
-Ideally, we would like an acceptance fraction of ~50\% for each chain, but 
+Ideally, we would like an acceptance fraction of ~50\% for each chain, but
 we often get closer to ~30\%.
 
 \subsection{Signal to Noise Ratio}
 Simulated images are generated at a user-specified SNR.  This is
 acomplished with \code{galsim.noise.addNoiseSNR}, which uses the
-definition of SNR from Great08.  Briefly, 
+definition of SNR from Great08.  Briefly,
 \[
 \sigma_I = \sum_{\textrm{pixels } i}\frac{I_i^2}{\textrm{SNR}^2}.
 \]
 See Galsim
-\href{http://galsim-developers.github.io/GalSim/namespacegalsim_1_1noise.html#a86f91278331ac9c134c25b16d4c67a32}{docs}
+\href{http://galsim-developers.github.io/GalSim/namespacegalsim\
+_1_1noise.html#a86f91278331ac9c134c25b16d4c67a32}{docs}
 for more info.
 
 \end{document}
