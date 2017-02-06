@@ -244,7 +244,8 @@ if __name__ == '__main__':
         def loglikelyhood(cube, ndim, nparams, lnew):
             return lnprob(cube, data, args.dual_band, pixel_var, mask, trueParams)
 
-        pymultinest.run(loglikelyhood, FlatPrior, ndim,n_live_points=100, multimodal=False)
+        pymultinest.run(loglikelyhood, FlatPrior, ndim,n_live_points=100,
+                        multimodal=False)
 
 
     elif args.sampler == 'emcee':

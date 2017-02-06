@@ -34,14 +34,11 @@ def draw_thetas(n):
 
 nthreads = 16 if "cosmos5" in platform.node() else 1
 
-mask = [True] * model.EggParams.nparams
+mask = [True]*8 + [False]*3
 
-#nwalkers = 1000
-#nburnin = 300
-#nsample = 1000
-nwalkers = 30
-nburnin = 3
-nsample = 3
+nwalkers = 1000
+nburnin = 300
+nsample = 1000
 
 #parameters to test
 SNRs = [10,50,200]
@@ -59,6 +56,7 @@ for i,(SNR,psf,theta) in enumerate(params):
     print("TODO: use pdf")
     #run single band chain
     data, pixel_var = mcmc.generate_data(theta, dual_band=False, SNR=SNR)
+
     sampler_s, stats_s = mcmc.run_chain(data, pixel_var, theta, nwalkers,
                                         nburnin, nsample, nthreads=nthreads,
                                         mask=mask, SNR=SNR, psf=psf)
@@ -80,7 +78,7 @@ for i,(SNR,psf,theta) in enumerate(params):
                                         nburnin, nsample, nthreads=nthreads,
                                         mask=mask, SNR=SNR, psf=psf,
                                         dual_band=True)
-                                        
+
     with open(str(i) + '/double.stats.p', 'wb') as f:
         pickle.dump(stats_d,f)
     np.save(str(i) + '/double.chain.npy', sampler_d.flatchain)
