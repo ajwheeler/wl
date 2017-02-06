@@ -30,7 +30,7 @@ def FlatPrior(cube, ndim, nparams):
         ub = theta_ub[i]
         cube[i] = cube[i]*(ub-lb) - lb
 
-def lnprob(theta, data, dual_band, pixel_var, mask, trueParams):
+def lnprob(theta, data, dual_band, pixel_var, psf, mask, trueParams):
     """log likelyhood for emcee"""
     theta = np.array(theta)
 
@@ -40,20 +40,23 @@ def lnprob(theta, data, dual_band, pixel_var, mask, trueParams):
     if not all(theta > lb) or not all(theta < ub):
         return -np.inf
 
+    #TODO: can I delete this line?
     params = model.EggParams()
     params = copy.copy(trueParams)
     params.fromArray(theta, mask)
 
-    # use g < .9 instead of g < 1 because fft can't handle g~1
+    #use g < .9 instead of g < 1 because FFT can't handle g close to 1
     if np.sqrt(params.g1d**2 + params.g2d**2) > .9 \
        or np.sqrt(params.g1b**2 + params.g2b**2) > .9:
         return -np.inf
 
+    #a single image (i.e. not a pair of g/r band images)
+    #for the model to size-match
+    single_image = data[0] if dual_band else data
+
     try:
-        #a single imgage (i.e. not a pair of g/r band images
-        #for the model to size-match
-        single_image = data[0] if dual_band else data
-        gals = model.egg(params, match_image_size=single_image, dual_band=dual_band)
+        gals = model.egg(params, match_image_size=single_image,
+                         dual_band=dual_band, r_psf=psf)
     except RuntimeError:
         print("error drawing galaxy with these parameters:")
         print(params)
@@ -69,18 +72,19 @@ def lnprob(theta, data, dual_band, pixel_var, mask, trueParams):
 
     return p * .5/pixel_var
 
-def generate_data(trueParams, dual_band=False, NP=200, SNR=50):
-    data = model.egg(trueParams, dual_band=dual_band, nx=NP, ny=NP)
+def generate_data(trueParams, dual_band=False, NP=200, SNR=50, psf=.25):
+    data = model.egg(trueParams, dual_band=dual_band, nx=NP, ny=NP, r_psf=psf)
 
     #apply noise and make data a QuietImage (see class at top of file)
     if dual_band:
         for i in [0,1]:
             #bd = galsim.BaseDeviate(int(time.time()))
-            data[i].addNoiseSNR(galsim.GaussianNoise(),SNR,preserve_flux=True)
+            var = data[i].addNoiseSNR(galsim.GaussianNoise(),SNR,
+                                      preserve_flux=True)
 
         print("WARNING: SNR may be incorrect")
         #TODO how to ensure same total SNR?
-        var = data[0].__class__ = QuietImage #g band image
+        data[0].__class__ = QuietImage #g band image
         data[1].__class__ = QuietImage #r band image
     else:
         #bd = galsim.BaseDeviate(int(time.time()))
@@ -92,7 +96,7 @@ def generate_data(trueParams, dual_band=False, NP=200, SNR=50):
 
 def run_chain(data, pixel_var, trueParams, nwalkers, nburnin, nsample, nthreads=1,
               mask=True*model.EggParams.nparams, parallel_tempered=False,
-              dual_band=False, NP=200, SNR=50):
+              dual_band=False, NP=200, SNR=50, psf=0.25):
 
     ndim = mask.count(True)
     if parallel_tempered:
@@ -104,13 +108,15 @@ def run_chain(data, pixel_var, trueParams, nwalkers, nburnin, nsample, nthreads=
         def logp(x):
             return 0.01
         sampler = emcee.PTSampler(ntemps, nwalkers, ndim, lnprob, logp,
-                                  loglargs=[data, dual_band, pixel_var, mask, trueParams],
+                                  loglargs=[data, dual_band, pixel_var, psf,
+                                            mask, trueParams],
                                   threads=nthreads)
     else:
         theta0 = [trueParams.toArray(mask) + 1e-2*np.random.randn(ndim)\
                   for _ in range(nwalkers)]
         sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob,
-                                        args=[data, dual_band, pixel_var, mask, trueParams],
+                                        args=[data, dual_band, pixel_var, psf,
+                                              mask, trueParams],
                                         threads=nthreads)
 
     pos, _, state = sampler.run_mcmc(theta0, nburnin)
