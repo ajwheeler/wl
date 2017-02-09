@@ -36,9 +36,9 @@ nthreads = 16 if "cosmos5" in platform.node() else 1
 
 mask = [True]*8 + [False]*3
 
-nwalkers = 1000
-nburnin = 300
-nsample = 1000
+nwalkers = 500
+nburnin = 200
+nsample = 500
 
 #parameters to test
 SNRs = [10,50,200]
