@@ -163,7 +163,6 @@ if __name__ == '__main__':
     parser.add_argument('--mask', default='nomag', type=str)
     parser.add_argument('--sampler', default='emcee', type=str,
                         choices=['emcee', 'multinest', 'gridsampler', 'none'])
-    parser.add_argument('--savedata', type=str, default=None)
     parser.add_argument('--loaddata', type=str, default=None)
     parser.add_argument('--drawdata', type=str, default=None)
     args = parser.parse_args()
@@ -192,6 +191,16 @@ if __name__ == '__main__':
         mask = [True if i == '1' else False for i in args.mask]
     print("mask = " + str([1 if m else 0 for m in mask]))
 
+    #construct name
+    name = "%s.%s.%s" % (args.nwalkers, args.nburnin, args.nsample)
+    if args.parallel_tempered:
+        name += '.pt'
+    name += ".dual" if args.dual_band else ".single"
+    if args.suffix != None:
+        name += "." + args.suffix
+    t = time.localtime()
+    name = str(t.tm_mon) + "-" + str(t.tm_mday) + "." + name
+
     #generate or load data
     if args.loaddata:
         with open(args.loaddata,'r') as f:
@@ -202,9 +211,9 @@ if __name__ == '__main__':
                                  g2s = 0, mu=1)
         data, pixel_var = generate_data(trueParams, args.dual_band, NP, args.snr)
 
-        if args.savedata:
-            with open(args.savedata,'w') as f:
-                pickle.dump((trueParams, pixel_var, args.snr, data), f)
+        datafilename = name + '.png'
+        with open(datafilename,'w') as f:
+            pickle.dump((trueParams, pixel_var, args.snr, data), f)
 
     #save image of simulated data if requested
     if args.drawdata:
@@ -257,16 +266,6 @@ if __name__ == '__main__':
         print("chain finished!")
         print()
         print(stats)
-
-        #construct name
-        name = "%s.%s.%s" % (args.nwalkers, args.nburnin, args.nsample)
-        if args.parallel_tempered:
-            name += '.pt'
-        name += ".dual" if args.dual_band else ".single"
-        if args.suffix != None:
-            name += "." + args.suffix
-        t = time.localtime()
-        name = str(t.tm_mon) + "-" + str(t.tm_mday) + "." + name
 
         #write stats
         with open(name+'.stats.p', 'wb') as f:
