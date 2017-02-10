@@ -28,7 +28,8 @@ def make_figure(samples, true_vals, weights=None, stats=None,
     if stats:
         notes = ""
         for k,v in stats.iteritems():
-            notes += "%s: %s\n" % (k,v)
+            if k != 'time' and k != 'true_params':
+                notes += "%s: %s\n" % (k,v)
 
     figure.text(.6, .7, notes)
     return figure

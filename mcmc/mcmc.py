@@ -127,7 +127,7 @@ def run_chain(data, pixel_var, trueParams, nwalkers, nburnin, nsample, nthreads=
     stats = {}
     stats['acceptance_fraction'] = np.mean(sampler.acceptance_fraction)
     stats['autocorrelation_time'] = sampler.get_autocorr_time()
-    stats['fiducial_params'] = trueParams
+    stats['true_params'] = trueParams
     stats["mask"] = mask
     stats['nburnin'] = nburnin
     stats['nwalkers'] = nwalkers
@@ -265,6 +265,7 @@ if __name__ == '__main__':
         print()
         print("chain finished!")
         print()
+        stats['data_image'] = datafilename
         print(stats)
 
         #write stats
