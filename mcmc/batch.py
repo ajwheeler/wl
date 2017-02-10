@@ -38,7 +38,7 @@ mask = [True]*8 + [False]*3
 
 nwalkers = 500
 nburnin = 200
-nsample = 500
+nsample = 700
 
 #parameters to test
 SNRs = [10,50,200]
