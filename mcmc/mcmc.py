@@ -208,7 +208,7 @@ if __name__ == '__main__':
     else: #generate data
         #true params, simulated data
         trueParams = model.EggParams(g1d=.2, g2d=.3, g2b=.4, g1s=0,
-                                 g2s = 0, mu=1)
+                                     g2s = 0, mu=1)
         data, pixel_var = generate_data(trueParams, args.dual_band, NP, args.snr)
 
         datafilename = name + '.p'

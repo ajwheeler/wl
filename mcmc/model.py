@@ -81,8 +81,8 @@ def egg(params, scale=0.2, match_image_size=None, dual_band=False, nx=None,
         green_egg = (disk*rfr + bulge/rfr)
         red_egg = (disk/rfr + bulge*rfr)
 
-        green_egg  = green_egg.withFlux(params.fd + params.fb)
-        red_egg  = red_egg.withFlux(params.fd + params.fb)
+        green_egg  = green_egg.withFlux((params.fd + params.fb)/2)
+        red_egg  = red_egg.withFlux((params.fd + params.fb)/2)
     else:
         egg = disk + bulge
 
@@ -105,7 +105,10 @@ def egg(params, scale=0.2, match_image_size=None, dual_band=False, nx=None,
 
     return (images[0], images[1]) if dual_band else images[0]
 
-def show(img):
-    import matplotlib.pyplot as  plt
+def show(img, colorbar=False):
+    import matplotlib.pyplot as plt
     plt.imshow(img.array, cmap=plt.get_cmap('gray'))
+    if colorbar:
+        print("colorbar!")
+        plt.colorbar()
     plt.show()
