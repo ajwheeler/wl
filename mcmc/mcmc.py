@@ -79,7 +79,7 @@ def generate_data(trueParams, dual_band=False, NP=200, SNR=50, psf=.25):
     if dual_band:
         for i in [0,1]:
             #bd = galsim.BaseDeviate(int(time.time()))
-            var = data[i].addNoiseSNR(galsim.GaussianNoise(),SNR,
+            var = data[i].addNoiseSNR(galsim.GaussianNoise(),SNR/sqrt(2),
                                       preserve_flux=True)
 
         print("WARNING: SNR may be incorrect")
@@ -211,7 +211,7 @@ if __name__ == '__main__':
                                  g2s = 0, mu=1)
         data, pixel_var = generate_data(trueParams, args.dual_band, NP, args.snr)
 
-        datafilename = name + '.png'
+        datafilename = name + '.p'
         with open(datafilename,'w') as f:
             pickle.dump((trueParams, pixel_var, args.snr, data), f)
 
