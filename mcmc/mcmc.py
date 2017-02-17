@@ -283,6 +283,6 @@ if __name__ == '__main__':
             if args.parallel_tempered:
                 chain = chain.reshape(ntemps*args.nwalkers*args.nsample, ndim)
             fig = drawcorner.make_figure(chain, trueParams.toArray(mask),
-                                         mask=mask)
+                                         mask=mask, stats=stats)
             print("writing plot to " + name + ".png")
-            fig.savefig(name + ".png")
+            fig.savefig(name + ".png", bbox_inches='tight')
