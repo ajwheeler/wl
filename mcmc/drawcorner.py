@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -44,10 +45,10 @@ def make_trace(samples, stats) :
     xs = range(chain.shape[0])
 
     nparams = sum(mask)
-    fig = plt.figure(figsize=(10,3*nparams))
+    fig = plt.figure(figsize=(20,3*nparams))
     for i in xrange(nparams):
         plt.subplot(nparams,1,i)
-        plt.plot(xs,chain[:,i])
+        plt.plot(xs,chain[:,i], marker=',')
         plt.ylabel(ls[i])
     return fig
 

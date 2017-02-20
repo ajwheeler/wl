@@ -4,7 +4,7 @@ import emcee
 import numpy as np
 import galsim
 import argparse
-import time
+import datetime
 import copy
 import pickle
 import itertools
@@ -98,6 +98,7 @@ def run_chain(data, pixel_var, trueParams, nwalkers, nburnin, nsample, nthreads=
               mask=True*model.EggParams.nparams, parallel_tempered=False,
               dual_band=False, NP=200, SNR=50, psf=0.25):
 
+    t1 = datetime.datetime.now()
     ndim = mask.count(True)
     if parallel_tempered:
         ntemps = 20
@@ -123,6 +124,8 @@ def run_chain(data, pixel_var, trueParams, nwalkers, nburnin, nsample, nthreads=
     sampler.reset()
     sampler.run_mcmc(pos, nsample, rstate0=state)
 
+    t2 = datetime.datetime.now()
+
     #collect stats
     stats = {}
     stats['acceptance_fraction'] = np.mean(sampler.acceptance_fraction)
@@ -137,7 +140,8 @@ def run_chain(data, pixel_var, trueParams, nwalkers, nburnin, nsample, nthreads=
     stats['dual_band'] = dual_band
     stats['NP'] = NP
     stats['SNR'] = SNR
-    stats['time'] = time.localtime()
+    stats['time'] = datetime.datetime.now()
+    stats['computetime'] = t2 - t1
 
     return sampler, stats
 
@@ -198,8 +202,8 @@ if __name__ == '__main__':
     name += ".dual" if args.dual_band else ".single"
     if args.suffix != None:
         name += "." + args.suffix
-    t = time.localtime()
-    name = str(t.tm_mon) + "-" + str(t.tm_mday) + "." + name
+    t = datetime.datetime.now()
+    name = str(t.month) + "-" + str(t.day) + "." + name
 
     #generate or load data
     if args.loaddata:
