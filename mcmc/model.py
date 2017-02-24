@@ -81,8 +81,10 @@ def egg(params, scale=0.2, match_image_size=None, dual_band=False, nx=None,
         green_egg = (disk*rfr + bulge/rfr)
         red_egg = (disk/rfr + bulge*rfr)
 
-        green_egg  = green_egg.withFlux((params.fd + params.fb)/2)
-        red_egg  = red_egg.withFlux((params.fd + params.fb)/2)
+        #scale to correct total flux
+        f = (params.fd + params.fb) / (red_egg.getFlux() + green_egg.getFlux())
+        green_egg *= f
+        red_egg  *= f
     else:
         egg = disk + bulge
 
