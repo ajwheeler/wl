@@ -9,6 +9,9 @@
 
 \usepackage{margins}
 \usepackage{adam}
+\newcommand{\Fd}{F^\textrm{Disk}}
+\newcommand{\Fb}{F^\textrm{Bulge}}
+
 %---------------------------------------------------------------------
 \begin{document}
 %---------------------------------------------------------------------
@@ -67,12 +70,34 @@ $n=1$ S\'{e}rsic profile.  The image is convolved with a $\sigma = 0.25
 \subsection{The color ``prior''}
 One important aspect of the model is that the disk and bulge can
 optionally be drawn with different $r-g$ colors such that
-$(g-r)_{disk} \approx (g-r)_{bulge} - 2$. \comment{n.b. I have to check to
-ensure that these magnitudes are being calculated correctly.}  We have
+$(g-r)_{disk} \approx (g-r)_{bulge} - 2$.  We have
 been treating the color difference between the disk and bulge like a
 prior in that we are interested in how much switching it on affects
 our fits, but our current treatment presumes perfect knowledge of the
 color difference between disk and bulge.
+
+If
+\[
+(g-r)_{disk} = (g-r)_{bulge} - \Delta,
+\]
+then
+\[
+2.5 \log \left(  \frac{F_g^\textrm{Disk} F_r^\textrm{Bulge}}
+{F_r^\textrm{Disk} F_g^\textrm{Bulge}} \right) = \Delta.
+\]
+If we define $\gamma$ such that
+\begin{align*}
+&\Fd_r = \gamma \Fd\\
+&\Fd_g = \Fd / \gamma\\
+&\Fb_r = \Fb / \gamma\\
+&\Fb_g = \gamma \Fb,
+\end{align*}
+then
+\[
+\gamma^4 = 10^{\Delta/2.5} \Rightarrow
+ \gamma = 10^{\Delta/10}.
+\]
+For $\Delta = 2$, $\gamma = 10^{1/2} \approx 1.58$.
 
 
 \section{Priors}
