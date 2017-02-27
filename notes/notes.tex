@@ -86,20 +86,24 @@ then
 {F_r^\textrm{Disk} F_g^\textrm{Bulge}} \right) = \Delta.
 \]
 If we define $\gamma$ such that
-\begin{align*}
-&\Fd_r = \gamma \Fd\\
+\begin{align}
+&\Fd_r = \gamma \Fd \label{Fdr}\\
 &\Fd_g = \Fd / \gamma\\
 &\Fb_r = \Fb / \gamma\\
-&\Fb_g = \gamma \Fb,
-\end{align*}
+&\Fb_g = \gamma \Fb \label{Fbg},
+\end{align}
 then
-\[
+\begin{equation}
 \gamma^4 = 10^{\Delta/2.5} \Rightarrow
- \gamma = 10^{\Delta/10}.
+ \gamma = 10^{\Delta/10}. \label{gamma}
+\end{equation}
+For $\Delta = 2$, $\gamma = 10^{1/2} \approx 1.58$.  To generate dual band,
+images we use the fluxes defined in (\ref{Fdr}) - (\ref{Fbg}) and the $\gamma$
+from (\ref{gamma}).  Then we jointly scale the flux of both images so that the
+total flux is as expected, e.g.
+\[
+\Fd_r + \Fd_g + \Fb_r + \Fb_g = \Fd + \Fb.
 \]
-For $\Delta = 2$, $\gamma = 10^{1/2} \approx 1.58$.
-
-
 \section{Priors}
 Besides the ``prior'' on disk and bulge color, we are applying two
 empirically motivated priors.
@@ -118,7 +122,7 @@ they take on a non-uniform distribution of inclination angles.  By
 assuming a uniform distribution of 3D orientations, we arrive at a
  prior proportional to $\gamma = \sqrt{\gamma_1^2 + \gamma_2^2}$.
 If $\phi$ is the inclination angle ($\phi = 0$ for a face-on disk), then for an ideal
-(circular, perfectly thin) disk, the shear $\gamma$ is given by
+(circular, perfectly thin) disk, the ``shear'' $\gamma$ is given by
 \[
 \gamma = \frac{a - b}{a + b} = \frac{1 - \cos(\phi)}{1 + \cos(\phi)}
 \Rightarrow \phi = \arccos{\left( \frac{1 - \gamma}{1 + \gamma} \right) }

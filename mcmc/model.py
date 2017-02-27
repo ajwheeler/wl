@@ -112,6 +112,5 @@ def show(img, colorbar=False):
     import matplotlib.pyplot as plt
     plt.imshow(img.array, cmap=plt.get_cmap('gray'))
     if colorbar:
-        print("colorbar!")
         plt.colorbar()
     plt.show()

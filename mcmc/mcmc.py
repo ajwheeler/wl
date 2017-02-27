@@ -77,18 +77,20 @@ def generate_data(trueParams, dual_band=False, NP=200, SNR=50, psf=.25):
 
     #apply noise and make data a QuietImage (see class at top of file)
     if dual_band:
+        combined = data[0] + data[1]
+        var = combined.addNoiseSNR(galsim.GaussianNoise(), SNR,
+                                   preserve_flux=True)
+        print()
+        print(var)
         for i in [0,1]:
-            #bd = galsim.BaseDeviate(int(time.time()))
-            var = data[i].addNoiseSNR(galsim.GaussianNoise(),SNR/sqrt(2),
-                                      preserve_flux=True)
+            seed = long(datetime.datetime.now().microsecond)
+            noise = galsim.GaussianNoise(galsim.BaseDeviate(seed))
+            noise = noise.withVariance(var/2)
+            data[i].addNoise(noise)
 
-        print("WARNING: SNR may be incorrect")
-        #TODO how to ensure same total SNR?
         data[0].__class__ = QuietImage #g band image
         data[1].__class__ = QuietImage #r band image
     else:
-        #bd = galsim.BaseDeviate(int(time.time()))
-        #data.addNoise(galsim.GaussianNoise(bd, pixel_noise))
         var = data.addNoiseSNR(galsim.GaussianNoise(),SNR,preserve_flux=True)
         data.__class__ = QuietImage
 
