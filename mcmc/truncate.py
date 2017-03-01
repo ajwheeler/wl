@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''truncate chain and lnprob files on the command line'''
 import argparse
 import numpy as np
@@ -5,7 +6,8 @@ import pickle
 
 parser = argparse.ArgumentParser(description="truncate chain and lnprob files")
 parser.add_argument('file_prefix', type=str)
-parser.add_argument('-b', '--nburnin', type=int, required=True)
+parser.add_argument('-b', '--nburnin', type=int, default=0)
+parser.add_argument('-a', '--nantiburnin', type=int, default=0)
 args = parser.parse_args()
 
 with open(args.file_prefix + '.stats.p', 'rb') as f:
@@ -20,14 +22,19 @@ dim = sum(stats['mask'])
 chain = chain.reshape((stats['nwalkers'], stats['nsample'], dim))
 lnprob = lnprob.reshape((stats['nwalkers'], stats['nsample']))
 
-#remove first nburnin from arrays, reshape
+#remove first nburnin, last nburnin from arrays, reshape
+print(chain.shape)
+chain = np.delete(chain, np.s_[stats['nsample']-args.nantiburnin:],1)
+print(chain.shape)
 chain = np.delete(chain, np.s_[:args.nburnin],1)
-chain = chain.reshape((stats['nwalkers'] * (stats['nsample']-args.nburnin), dim))
+print(chain.shape)
+chain = chain.reshape((stats['nwalkers'] * (stats['nsample']-args.nburnin-args.nantiburnin), dim))
+lnprob = np.delete(lnprob, np.s_[stats['nsample']-args.nantiburnin:],1)
 lnprob = np.delete(lnprob, np.s_[:args.nburnin],1).flatten()
 
 #update stats
 stats['nburnin'] += args.nburnin
-stats['nsample'] -= args.nburnin
+stats['nsample'] -= args.nburnin + args.nantiburnin
 
 #construct new prefix
 new_prefix = args.file_prefix.split('.')
