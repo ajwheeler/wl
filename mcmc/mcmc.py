@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from  __future__ import print_function
 import model
 import emcee
@@ -211,6 +212,11 @@ if __name__ == '__main__':
     if args.loaddata:
         with open(args.loaddata,'r') as f:
             trueParams, pixel_var, args.snr, data = pickle.load(f)
+        if type(data) == tuple and not args.dual_band:
+            print("converting dual-band image to single band")
+            data = data[0] + data[1]
+        elif type(data) != tuple and args.dual_band:
+            raise RuntimeError("single band data incompatible with dual-band fit")
     else: #generate data
         #true params, simulated data
         trueParams = model.EggParams(g1d=.2, g2d=.3, g2b=.4, g1s=0,
@@ -271,7 +277,7 @@ if __name__ == '__main__':
         print()
         print("chain finished!")
         print()
-        stats['data_image'] = datafilename
+        stats['data_image'] = args.loaddata if args.loaddata else datafilename
         print(stats)
 
         #write stats
