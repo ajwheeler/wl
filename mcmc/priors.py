@@ -8,6 +8,11 @@ import mcmc
 # ==> -.54 log(R) = log(I) + const
 # https://ned.ipac.caltech.edu/level5/Sept01/Kormendy/frames.html [sec 8.2]
 
+# we assume that 3 arcsec ~ 6 kpc, so
+# r1/2 = 6 kpc
+# angle = 3 arcsec = 1.454e-5 rad
+distance = 6 / 1.454e-5 #kpc
+
 priors = ["kormendy", "orientation"]
 
 def calculate_priors(chain):
@@ -57,4 +62,3 @@ if __name__ == '__main__':
         suffix = "." + l + ".npy"
         print("writing to " + prefix + suffix)
         np.save(prefix + suffix, weights[l])
-        
