@@ -2,34 +2,50 @@ import numpy as np
 import argparse
 import mcmc
 
-# the Kormendy Relation
-# R  = const I^-.83
-# ==> R^-.54 = const I
-# ==> -.54 log(R) = log(I) + const
-# https://ned.ipac.caltech.edu/level5/Sept01/Kormendy/frames.html [sec 8.2]
 
-# we assume that 3 arcsec ~ 6 kpc, so
-# r1/2 = 6 kpc
-# angle = 3 arcsec = 1.454e-5 rad
-distance = 6 / 1.454e-5 #kpc
+def kormendy_prior(R,F):
+    """
+    R: angular half-light radius of bulge
+    F: total bulge flux
+    """
+    # Extracting kormendy from
+    # http://astronomy.swin.edu.au/cosmos/K/Kormendy+Relation
+    # x-axis: log (effective radius in kpc)
+    # y-axis: surface brightness @ effective radius is mag arcsec^-2
+    # these two points are on the line: (-0.54, 17.89), (1.56, 24.06)
+    # m = a logR + b +- sigma
+    a = 2.95
+    b = 19.483
+    sigma = 10
+
+    # we assume that 3 arcsec ~ 6 kpc, so
+    # r1/2 = 6 kpc
+    # angle = 3 arcsec = 1.454e-5 rad
+    distance = 6 / 1.454e-5 #kpc
+
+    angle = R * 4.85e-6 #angular h-l R in radans
+    logR = np.log10(distance * angle)
+
+    #average surface brightness within half-light radius,
+    #in normalized flux units per arcsec^2
+    m0 = 126.693
+    m = -2.5 * np.log10(F) + m0
+    I = m / (2 * np.pi * R**2)
+
+    I_kormendy = a * logR + b
+
+    diff = I-I_kormendy
+
+    return 1/np.sqrt(2*sigma**2*np.pi) * np.exp(-diff**2/2.0/sigma**2)
+
 
 priors = ["kormendy", "orientation"]
 
 def calculate_priors(chain):
-    sigma = .5
-
-    power = -.54
-
-    #R = mcmc.trueParams.rb
-    #F = mcmc.trueParams.fd
-    R = 1
-    F = .3
-
-    const = power*np.log(R) - np.log(F)
-
     weights = {}
     for l in priors:
         weights[l] = np.empty(len(chain))
+
     for i in xrange(len(chain)):
         #Kormendy prior
         theta = chain[i]
