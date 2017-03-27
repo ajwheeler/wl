@@ -59,16 +59,15 @@ if __name__ == '__main__':
     parser.add_argument("-c", '--chainfile', type=str)
     parser.add_argument("-o", '--output', type=str)
     parser.add_argument("-t", '--trace', action='store_true')
+    parser.add_argument("-w", '--weights', nargs="*")
     args = parser.parse_args()
 
-#    if weightfiles != []:
-#        print(weightfiles)
-#        weights = np.prod(np.array([np.load(f) for f in weightfiles]), axis=0)
-#    else:
-    weights = None
+    if args.weights:
+        weights = np.prod(np.array([np.load(f) for f in args.weights]), axis=0)
+    else:
+        weights = None
 
     chain = np.load(args.chainfile)
-
     with open(args.statsfile) as f:
         stats = pickle.load(f)
 

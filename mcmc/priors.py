@@ -28,14 +28,14 @@ def kormendy_prior(R,F):
 
     #average surface brightness within half-light radius,
     #in normalized flux units per arcsec^2
-    m0 = 126.693
-    m = -2.5 * np.log10(F) + m0
-    I = m / (2 * np.pi * R**2)
+    #calculations based on equation 11 from paper in notes
+    mu0 = 17.0692727842
+    mu = mu0  + 2.5 * np.log10(2 * np.pi * R**2 / F)
 
-    I_kormendy = a * logR + b
+    mu_kormendy = a * logR + b
+    diff = mu-mu_kormendy
 
-    diff = I-I_kormendy
-
+    #return diff
     return 1/np.sqrt(2*sigma**2*np.pi) * np.exp(-diff**2/2.0/sigma**2)
 
 
@@ -52,9 +52,7 @@ def calculate_priors(chain):
         R = theta[4]
         F = theta[5]
 
-        x = power*np.log(R) - np.log(F) - const
-        weights["kormendy"][i] = \
-            1/(sigma*np.sqrt(2*np.pi)) * np.exp(-(x**2)/(2*sigma**2))
+        weights["kormendy"][i] = kormendy_prior(R,F)
 
         #Orientation Prior
         gamma = np.sqrt(theta[2]**2  + theta[3]**2)
