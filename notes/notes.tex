@@ -109,12 +109,20 @@ Besides the ``prior'' on disk and bulge color, we are applying two
 empirically motivated priors.
 \subsection{The Kormendy Relation}
 The Kormendy relation essentially a projection of the fundamental
-plane.  It states that for elliptical galaxies,
-$R_e \propto \langle I \rangle_e^{0.83}$, where $R_e$ is the effective radius
-and $\langle I \rangle_e$ is the mean surface brightness within $R_e$.
-We take, as a prior on the bulge radius and flux, a
-distribution that is normally distributed around the line in $\log I$
-- $\log R$ space defined by the Kormendy relation.
+plane.  We extract if from the plot at
+\href{http://astronomy.swin.edu.au/cosmos/K/Kormendy+Relation}{this page}.
+As shown there, it states that ellipticals (and bulges) are distributed around
+the line
+\[
+S = a \log(R_e [\textrm{Kpc}]) + b
+\]
+\[
+a = 2.95 \textrm{ mag}/\textrm{arcsec}^2,
+b = 19.483 \textrm{ mag}/\textrm{arcsec}^2
+\]
+where $S$ is the object's surface brightness within its effective radius,
+and $R_e$ is its effective radius.
+
 
 \subsection{Orientation Prior}
 Assuming that the disk is oriented randomly in 3D space,
