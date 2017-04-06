@@ -41,10 +41,12 @@ def lnprob(theta, data, dual_band, pixel_var, psf, mask, trueParams):
     if not all(theta > lb) or not all(theta < ub):
         return -np.inf
 
-    #TODO: can I delete this line?
-    params = model.EggParams()
     params = copy.copy(trueParams)
     params.fromArray(theta, mask)
+
+    #require that disk is larger than bulge
+    if params.rd < params.rb:
+        return -np.inf
 
     #use g < .9 instead of g < 1 because FFT can't handle g close to 1
     if np.sqrt(params.g1d**2 + params.g2d**2) > .9 \
