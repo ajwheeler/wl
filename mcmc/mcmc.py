@@ -68,7 +68,7 @@ def lnprob(theta, data, dual_band, pixel_var, psf, mask, trueParams):
     if dual_band:
         g_diff = gals[0].array - data[0].array
         r_diff = gals[1].array - data[1].array
-        p = -(np.sum(g_diff**2) + np.sum(r_diff**2))
+        p = -np.sum(g_diff**2) - np.sum(r_diff**2)
     else:
         diff = gals.array - data.array
         p = -np.sum(diff**2)
@@ -83,8 +83,6 @@ def generate_data(trueParams, dual_band=False, NP=200, SNR=50, psf=.25):
         combined = data[0] + data[1]
         var = combined.addNoiseSNR(galsim.GaussianNoise(), SNR,
                                    preserve_flux=True)
-        print()
-        print(var)
         for i in [0,1]:
             seed = long(datetime.datetime.now().microsecond)
             noise = galsim.GaussianNoise(galsim.BaseDeviate(seed))

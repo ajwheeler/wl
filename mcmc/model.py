@@ -68,6 +68,10 @@ class EggParams():
 def egg(params, scale=0.2, match_image_size=None, dual_band=False, nx=None,
     ny=None, r_psf = .25):
 
+    #match size of one image if dual band
+    if type(match_image_size) == tuple:
+        match_image_size = match_image_size[0]
+
     disk = galsim.Exponential(half_light_radius=params.rd, flux=params.fd)
     disk = disk.shear(g1=params.g1d, g2=params.g2d)
     disk = disk.withFlux(params.fd)

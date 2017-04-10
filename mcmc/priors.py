@@ -16,7 +16,7 @@ def kormendy_prior(R,F):
     # m = a logR + b +- sigma
     a = 2.95
     b = 19.483
-    sigma = 10
+    sigma = 1
 
     # we assume that 3 arcsec ~ 6 kpc, so
     # r1/2 = 6 kpc
