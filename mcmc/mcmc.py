@@ -31,7 +31,7 @@ def FlatPrior(cube, ndim, nparams):
         ub = theta_ub[i]
         cube[i] = cube[i]*(ub-lb) - lb
 
-def lnprob(theta, data, dual_band, pixel_var, psf, mask, trueParams):
+def lnprob(theta, data, dual_band, summed, pixel_var, psf, mask, trueParams):
     """log likelyhood for emcee"""
     theta = np.array(theta)
 
@@ -65,7 +65,10 @@ def lnprob(theta, data, dual_band, pixel_var, psf, mask, trueParams):
         print(params)
         return -np.inf
 
-    if dual_band:
+    if summed:
+        diff = (gals[0]+gals[1]).array - (data[0] + data[1]).array
+        p = -np.sum(diff**2)
+    elif dual_band:
         g_diff = gals[0].array - data[0].array
         r_diff = gals[1].array - data[1].array
         p = -np.sum(g_diff**2) - np.sum(r_diff**2)
@@ -75,7 +78,7 @@ def lnprob(theta, data, dual_band, pixel_var, psf, mask, trueParams):
 
     return p * .5/pixel_var
 
-def generate_data(trueParams, dual_band=False, NP=200, SNR=50, psf=.25):
+def generate_data(trueParams, dual_band, NP=200, SNR=50, psf=.25):
     data = model.egg(trueParams, dual_band=dual_band, nx=NP, ny=NP, r_psf=psf)
 
     #apply noise and make data a QuietImage (see class at top of file)
@@ -99,7 +102,7 @@ def generate_data(trueParams, dual_band=False, NP=200, SNR=50, psf=.25):
 
 def run_chain(data, pixel_var, trueParams, nwalkers, nburnin, nsample, nthreads=1,
               mask=True*model.EggParams.nparams, parallel_tempered=False,
-              dual_band=False, NP=200, SNR=50, psf=0.25):
+              dual_band=False, summed=False, NP=200, SNR=50, psf=0.25):
 
     t1 = datetime.datetime.now()
     ndim = mask.count(True)
@@ -112,15 +115,15 @@ def run_chain(data, pixel_var, trueParams, nwalkers, nburnin, nsample, nthreads=
         def logp(x):
             return 0.01
         sampler = emcee.PTSampler(ntemps, nwalkers, ndim, lnprob, logp,
-                                  loglargs=[data, dual_band, pixel_var, psf,
-                                            mask, trueParams],
+                                  loglargs=[data, dual_band, summed, pixel_var,
+                                            psf, mask, trueParams],
                                   threads=nthreads)
     else:
         theta0 = [trueParams.toArray(mask) + 1e-2*np.random.randn(ndim)\
                   for _ in range(nwalkers)]
         sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob,
-                                        args=[data, dual_band, pixel_var, psf,
-                                              mask, trueParams],
+                                        args=[data, dual_band, summed,
+                                              pixel_var, psf, mask, trueParams],
                                         threads=nthreads)
 
     pos, _, state = sampler.run_mcmc(theta0, nburnin)
@@ -165,6 +168,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--parallel-tempered', action='store_true')
     parser.add_argument('-d', '--draw-plot', action='store_true')
     parser.add_argument('-2', '--dual-band', action='store_true')
+    parser.add_argument('--summed', action='store_true')
     parser.add_argument('--snr', default=50, type=int)
     parser.add_argument('--suffix', default=None, type=str)
     parser.add_argument('--mask', default='nomag', type=str)
@@ -173,10 +177,10 @@ if __name__ == '__main__':
     parser.add_argument('--loaddata', type=str, default=None)
     parser.add_argument('--drawdata', type=str, default=None)
     args = parser.parse_args()
-    #for arg in vars(args):
-    #    print(arg, "=", getattr(args, arg))
 
-    NP = 200
+    NP = 200 #maybe this will become a cli arg?
+
+    assert((not args.summed) or args.dual_band)
 
     #set mask -- which params to fit
     if args.mask == 'nolensing':
@@ -202,7 +206,12 @@ if __name__ == '__main__':
     name = "%s.%s.%s" % (args.nwalkers, args.nburnin, args.nsample)
     if args.parallel_tempered:
         name += '.pt'
-    name += ".dual" if args.dual_band else ".single"
+    if args.summed:
+        name += '.summed'
+    elif args.dual_band:
+        name += '.dual'
+    else:
+        name += '.single'
     if args.suffix != None:
         name += "." + args.suffix
     t = datetime.datetime.now()
@@ -250,7 +259,7 @@ if __name__ == '__main__':
         print('grid')
         points = list(itertools.product(*itertools.compress(grid,mask)))
         print('points')
-        logls = [lnprob(p, data, args.dual_band, pixel_var, mask, trueParams)\
+        logls = [lnprob(p, data, args.dual_band, args.summed, pixel_var, mask, trueParams)\
                  for p in points]
         print('logls')
         i = np.argmax(logls)
@@ -263,7 +272,7 @@ if __name__ == '__main__':
 
         #define the log likelihood for multinest
         def loglikelyhood(cube, ndim, nparams, lnew):
-            return lnprob(cube, data, args.dual_band, pixel_var, mask, trueParams)
+            return lnprob(cube, data, args.dual_band, args,summed, pixel_var, mask, trueParams)
 
         pymultinest.run(loglikelyhood, FlatPrior, ndim,n_live_points=100,
                         multimodal=False)
@@ -273,7 +282,8 @@ if __name__ == '__main__':
         sampler, stats = run_chain(data, pixel_var, trueParams, args.nwalkers,
                                    args.nburnin, args.nsample, args.nthreads, mask,
                                    args.parallel_tempered, NP=NP,
-                                   dual_band=args.dual_band, SNR=args.snr)
+                                   dual_band=args.dual_band, summed=args.summed,
+                                   SNR=args.snr)
         print()
         print("chain finished!")
         print()
