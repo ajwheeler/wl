@@ -31,10 +31,18 @@ def FlatPrior(cube, ndim, nparams):
         ub = theta_ub[i]
         cube[i] = cube[i]*(ub-lb) - lb
 
+#TODO: move to model.py?
+def within_bounds(theta, mask):
+    #remove bounds for fixed parameters
+    lb = list(itertools.compress(theta_lb, mask))
+    ub = list(itertools.compress(theta_ub, mask))
+    return  all(theta > lb) and all(theta < ub)
+
 def lnprob(theta, data, dual_band, summed, pixel_var, psf, mask, trueParams):
     """log likelyhood for emcee"""
     theta = np.array(theta)
 
+    #TODO: use within_bounds
     #remove bounds for fixed parameters
     lb = list(itertools.compress(theta_lb, mask))
     ub = list(itertools.compress(theta_ub, mask))
@@ -119,7 +127,7 @@ def run_chain(data, pixel_var, trueParams, nwalkers, nburnin, nsample, nthreads=
                                             psf, mask, trueParams],
                                   threads=nthreads)
     else:
-        theta0 = [trueParams.toArray(mask) + 1e-2*np.random.randn(ndim)\
+        theta0 = [model.EggParams().toArray(mask) + 1e-2*np.random.randn(ndim)\
                   for _ in range(nwalkers)]
         sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob,
                                         args=[data, dual_band, summed,
