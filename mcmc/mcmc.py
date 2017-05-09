@@ -90,20 +90,25 @@ def generate_data(trueParams, dual_band, NP=200, SNR=50, psf=.25):
     data = model.egg(trueParams, dual_band=dual_band, nx=NP, ny=NP, r_psf=psf)
 
     #apply noise and make data a QuietImage (see class at top of file)
-    if dual_band:
-        combined = data[0] + data[1]
-        var = combined.addNoiseSNR(galsim.GaussianNoise(), SNR,
+    if SNR != None: #don't apply noise if there's no SNR
+        if dual_band:
+            combined = data[0] + data[1]
+            var = combined.addNoiseSNR(galsim.GaussianNoise(), SNR,
+                                       preserve_flux=True)
+            for i in [0,1]:
+                seed = long(datetime.datetime.now().microsecond)
+                noise = galsim.GaussianNoise(galsim.BaseDeviate(seed))
+                noise = noise.withVariance(var/2)
+                data[i].addNoise(noise)
+        else:
+            var = data.addNoiseSNR(galsim.GaussianNoise(),SNR,
                                    preserve_flux=True)
-        for i in [0,1]:
-            seed = long(datetime.datetime.now().microsecond)
-            noise = galsim.GaussianNoise(galsim.BaseDeviate(seed))
-            noise = noise.withVariance(var/2)
-            data[i].addNoise(noise)
 
+    #make data a QuietImage (see class at top of file)
+    if dual_band:
         data[0].__class__ = QuietImage #g band image
         data[1].__class__ = QuietImage #r band image
     else:
-        var = data.addNoiseSNR(galsim.GaussianNoise(),SNR,preserve_flux=True)
         data.__class__ = QuietImage
 
     return data, var
@@ -184,6 +189,7 @@ if __name__ == '__main__':
                         choices=['emcee', 'multinest', 'gridsampler', 'none'])
     parser.add_argument('--loaddata', type=str, default=None)
     parser.add_argument('--drawdata', type=str, default=None)
+    parser.add_argument('--false-noise', action="store_true")
     args = parser.parse_args()
 
     NP = 200 #maybe this will become a cli arg?
@@ -296,6 +302,7 @@ if __name__ == '__main__':
         print("chain finished!")
         print()
         stats['data_image'] = args.loaddata if args.loaddata else datafilename
+        stats['false_noise'] = args.false_noise
         print(stats)
 
         #write stats

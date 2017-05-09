@@ -3,9 +3,9 @@
 import mcmc
 import model
 import calculate_mode
+import numpy as np
 
-
-nwalkers = 200
+nwalkers = 100
 nsample = 100
 nburnin = 50
 
@@ -27,8 +27,10 @@ for _ in range(trials):
     qs.append(q)
     print("{} (+{}) (-{})".format(q[1], q[1]-q[0], q[2]-q[1]))
     print("")
-    
+
 qs = np.array(qs)
+
+print(qs)
 
 q = sum(qs)/trials
 print("{} (+{}) (-{})".format(q[1], q[1]-q[0], q[2]-q[1]))
