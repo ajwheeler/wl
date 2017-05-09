@@ -164,6 +164,25 @@ def run_chain(data, pixel_var, trueParams, nwalkers, nburnin, nsample, nthreads=
 
     return sampler, stats
 
+def parse_mask(mask):
+    """interpret cli mask arg"""
+    if mask == 'nolensing':
+        # no lensing params (8)
+        return [True]*8 + [False]*3
+    elif mask == 'justdisk':
+        #just the disk params (4)
+        return [True]*4 + [False]*7
+    elif mask == 'nomag':
+        #by default, do everything except magnification (10)
+        return [True]*10 + [False]
+    elif args.mask == 'all':
+        #fit all params (11)
+        return [True]*11
+    else:
+        #custom mask
+        assert(len(mask) == 11)
+        return [True if i == '1' else False for i in mask]
+
 
 #     #    #    ### #     #
 ##   ##   # #    #  ##    #
@@ -197,23 +216,7 @@ if __name__ == '__main__':
     assert((not args.summed) or args.dual_band)
 
     #set mask -- which params to fit
-    if args.mask == 'nolensing':
-        # no lensing params (8)
-        mask = [True]*8 + [False]*3
-    elif args.mask == 'justdisk':
-        #just the disk params (4)
-        mask = [True]*4 + [False]*7
-    elif args.mask == 'nomag':
-        #by default, do everything except magnification (10)
-        mask = [True]*11
-        mask[-1] = False
-    elif args.mask == 'all':
-        #fit all params (11)
-        mask = [True]*11
-    else:
-        #custom mask
-        assert(len(args.mask) == 11)
-        mask = [True if i == '1' else False for i in args.mask]
+    mask = parse_mask(args.mask)
     print("mask = " + str([1 if m else 0 for m in mask]))
 
     #construct name
@@ -250,7 +253,7 @@ if __name__ == '__main__':
         with open(datafilename,'w') as f:
             pickle.dump((trueParams, pixel_var, args.snr, data), f)
 
-    #save image of simulated data if requested
+    #save image of simulated data if specified
     if args.drawdata:
         #import matplotlib
         #matplotlib.use('Agg')
