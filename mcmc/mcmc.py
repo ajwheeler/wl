@@ -86,26 +86,32 @@ def lnprob(theta, data, dual_band, summed, pixel_var, psf, mask, trueParams):
 
     return p * .5/pixel_var
 
-def generate_data(trueParams, dual_band, NP=200, SNR=50, psf=.25):
+def generate_data(trueParams, dual_band, NP=200, SNR=50, psf=.25,
+                  false_noise=False):
     data = model.egg(trueParams, dual_band=dual_band, nx=NP, ny=NP, r_psf=psf)
 
+    if false_noise:
+        import copy
+        data_bk = copy.deepcopy(data)
+
     #apply noise and make data a QuietImage (see class at top of file)
-    if SNR != None: #don't apply noise if there's no SNR
-        if dual_band:
-            combined = data[0] + data[1]
-            var = combined.addNoiseSNR(galsim.GaussianNoise(), SNR,
-                                       preserve_flux=True)
-            for i in [0,1]:
-                seed = long(datetime.datetime.now().microsecond)
-                noise = galsim.GaussianNoise(galsim.BaseDeviate(seed))
-                noise = noise.withVariance(var/2)
-                data[i].addNoise(noise)
-        else:
-            var = data.addNoiseSNR(galsim.GaussianNoise(),SNR,
+    if dual_band:
+        combined = data[0] + data[1]
+        var = combined.addNoiseSNR(galsim.GaussianNoise(), SNR,
                                    preserve_flux=True)
+        for i in [0,1]:
+            seed = long(datetime.datetime.now().microsecond)
+            noise = galsim.GaussianNoise(galsim.BaseDeviate(seed))
+            noise = noise.withVariance(var/2)
+            data[i].addNoise(noise)
     else:
-        var = None
-        
+        var = data.addNoiseSNR(galsim.GaussianNoise(),SNR,
+                               preserve_flux=True)
+    if false_noise:
+        data = data_bk
+
+    model.show(data)
+
     #make data a QuietImage (see class at top of file)
     if dual_band:
         data[0].__class__ = QuietImage #g band image
@@ -256,7 +262,7 @@ if __name__ == '__main__':
                                      g2s = 0, mu=1)
 
         data, pixel_var = generate_data(trueParams, args.dual_band, NP,
-                                        None if args.false_noise else args.snr)
+                                        args.snr, false_noise=args.false_noise)
 
         datafilename = name + '.p'
         with open(datafilename,'w') as f:
