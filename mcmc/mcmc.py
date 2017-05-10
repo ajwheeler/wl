@@ -53,8 +53,8 @@ def lnprob(theta, data, dual_band, summed, pixel_var, psf, mask, trueParams):
     params.fromArray(theta, mask)
 
     #require that disk is larger than bulge
-    if params.rd < params.rb:
-        return -np.inf
+    # if params.rd < params.rb:
+    #     return -np.inf
 
     #use g < .9 instead of g < 1 because FFT can't handle g close to 1
     if np.sqrt(params.g1d**2 + params.g2d**2) > .9 \
@@ -103,7 +103,9 @@ def generate_data(trueParams, dual_band, NP=200, SNR=50, psf=.25):
         else:
             var = data.addNoiseSNR(galsim.GaussianNoise(),SNR,
                                    preserve_flux=True)
-
+    else:
+        var = None
+        
     #make data a QuietImage (see class at top of file)
     if dual_band:
         data[0].__class__ = QuietImage #g band image
@@ -115,7 +117,8 @@ def generate_data(trueParams, dual_band, NP=200, SNR=50, psf=.25):
 
 def run_chain(data, pixel_var, trueParams, nwalkers, nburnin, nsample, nthreads=1,
               mask=True*model.EggParams.nparams, parallel_tempered=False,
-              dual_band=False, summed=False, NP=200, SNR=50, psf=0.25):
+              dual_band=False, summed=False, NP=200, SNR=50, psf=0.25,
+              collect_stats=True):
 
     t1 = datetime.datetime.now()
     ndim = mask.count(True)
@@ -146,23 +149,26 @@ def run_chain(data, pixel_var, trueParams, nwalkers, nburnin, nsample, nthreads=
     t2 = datetime.datetime.now()
 
     #collect stats
-    stats = {}
-    stats['acceptance_fraction'] = np.mean(sampler.acceptance_fraction)
-    stats['autocorrelation_time'] = sampler.get_autocorr_time()
-    stats['true_params'] = trueParams
-    stats["mask"] = mask
-    stats['nburnin'] = nburnin
-    stats['nwalkers'] = nwalkers
-    stats['nsample'] = nsample
-    stats['nthreads'] = nthreads
-    stats['parallel_tempered'] = parallel_tempered
-    stats['dual_band'] = dual_band
-    stats['NP'] = NP
-    stats['SNR'] = SNR
-    stats['time'] = datetime.datetime.now()
-    stats['computetime'] = t2 - t1
+    if collect_stats:
+        stats = {}
+        stats['acceptance_fraction'] = np.mean(sampler.acceptance_fraction)
+        stats['autocorrelation_time'] = sampler.get_autocorr_time()
+        stats['true_params'] = trueParams
+        stats["mask"] = mask
+        stats['nburnin'] = nburnin
+        stats['nwalkers'] = nwalkers
+        stats['nsample'] = nsample
+        stats['nthreads'] = nthreads
+        stats['parallel_tempered'] = parallel_tempered
+        stats['dual_band'] = dual_band
+        stats['NP'] = NP
+        stats['SNR'] = SNR
+        stats['time'] = datetime.datetime.now()
+        stats['computetime'] = t2 - t1
 
-    return sampler, stats
+        return sampler, stats
+    else:
+        return sampler
 
 def parse_mask(mask):
     """interpret cli mask arg"""
@@ -234,7 +240,7 @@ if __name__ == '__main__':
     t = datetime.datetime.now()
     name = str(t.month) + "-" + str(t.day) + "." + name
 
-    #generate or load data
+    #load data
     if args.loaddata:
         with open(args.loaddata,'r') as f:
             trueParams, pixel_var, args.snr, data = pickle.load(f)
@@ -243,11 +249,14 @@ if __name__ == '__main__':
             data = data[0] + data[1]
         elif type(data) != tuple and args.dual_band:
             raise RuntimeError("single band data incompatible with dual-band fit")
-    else: #generate data
+    #generate data
+    else:
         #true params, simulated data
         trueParams = model.EggParams(g1d=.2, g2d=.3, g2b=.4, g1s=0,
                                      g2s = 0, mu=1)
-        data, pixel_var = generate_data(trueParams, args.dual_band, NP, args.snr)
+
+        data, pixel_var = generate_data(trueParams, args.dual_band, NP,
+                                        None if args.false_noise else args.snr)
 
         datafilename = name + '.p'
         with open(datafilename,'w') as f:
