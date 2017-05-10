@@ -110,8 +110,6 @@ def generate_data(trueParams, dual_band, NP=200, SNR=50, psf=.25,
     if false_noise:
         data = data_bk
 
-    model.show(data)
-
     #make data a QuietImage (see class at top of file)
     if dual_band:
         data[0].__class__ = QuietImage #g band image
